@@ -78,7 +78,7 @@ end;
 procedure Print(Count: Integer; Dir: Char; Steps: Integer);
 const
   Bridge: TString = 'H123456789';
-  Col: Integer = 1;
+  Col: Integer = 12;
 var
   I, MinX, MinY: Integer;
   S: array[0..9] of String[10];
@@ -145,6 +145,8 @@ begin
 
   Part1 := 0;
   Part2 := 0;
+
+  Print(0, ' ', 0);
 
   Assign(T, 'INPUT   .TXT');
   Reset(T);
