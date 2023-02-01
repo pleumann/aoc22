@@ -1,0 +1,4710 @@
+; 
+; program monkey.pas
+; 
+CPM:            equ     1               ; Target is CP/M .com file
+; 
+                include "/Users/joerg/Projekte/pl0/pl0.z80"
+; 
+                jp      main
+; 
+; [0] (* Built-ins that do not have to be defined in the compiler itself. *)
+; [1] 
+; [2] type
+; [3]   PBlock = ^TBlock;
+; [4]   TBlock = record
+; [5]     Next: PBlock;
+; [6]     Size: Integer;
+; [7]   end;
+; [8] 
+; [9] var
+; [10]   HeapPtr: PBlock absolute '__heapptr';
+; [11] 
+; [12]   AssertPassed: Integer absolute '__assertpassed';
+; [13]   AssertFailed: Integer absolute '__assertfailed';
+; [14] 
+; [15] procedure FreeMem(P: Pointer; Size: Integer); register; external '__freemem';
+; [16] (*var
+; [17]   Q: PBlock;
+; [18] begin
+; [19]   Q := P;
+; [20]   Q^.Size := Size;
+; [21]   Q^.Next := HeapPtr;
+; [22]   HeapPtr := Q;
+; [23]   P := nil;
+; [24] end;
+; [25] *)
+; [26] 
+; [27] procedure GetMem(var P: Pointer; Size: Integer); register; external '__getmem';
+; 
+; [28] (*var
+; [29]   Q, R: PBlock;
+; [30] begin
+; [31]   Q := nil;
+; [32]   R := HeapPtr;
+; [33]   while R <> nil do
+; [34]   begin
+; [35]     if R^.Size = Size then
+; [36]     begin
+; [37]       if Q = nil then
+; [38]         HeapPtr := R^.Next
+; [39]       else
+; [40]         Q^.Next := R^.Next;
+; [41] 
+; [42]       P := R;
+; [43] 
+; [44]       Exit;
+; [45]     end
+; [46]     else if R^.Size >= Size + 4 then
+; [47]     begin
+; [48]       if Q = nil then
+; [49]       begin
+; [50]         HeapPtr := Ptr(Ord(R) + Size);
+; [51]         HeapPtr^.Size := R^.Size - Size;
+; [52]         HeapPtr^.Next := R^.Next;
+; [53]       end
+; [54]       else
+; [55]       begin
+; [56]         Q^.Next := Ptr(Ord(R) + Size);
+; [57]         Q^.Next^.Size := R^.Size - Size;
+; [58]         Q^.Next^.Next := R^.Next;
+; [59]       end;
+; [60] 
+; [61]       P := R;
+; [62] 
+; [63]       Exit;
+; [64]     end;
+; [65] 
+; [66]     Q := R;
+; [67]     R := R^.Next;
+; [68]   end;
+; [69] 
+; [70]   WriteLn('Out of memory error');
+; [71]   while True do;
+; [72] end;
+; [73] *)
+; [74] procedure InitHeap(Bytes: Integer);
+; 
+; [75] var
+; [76]   P: Pointer;
+; [77] begin
+; var Bytes(+6), P(-2)
+; 
+proc2:          push    ix              ; Prologue
+                ld      hl,(display+4)
+                push    hl
+                ld      ix,0
+                add     ix,sp
+                ld      (display+4),ix
+                ld      hl,-2
+                add     hl,sp
+                ld      sp,hl
+; [78]   HeapPtr := nil;
+                ld      hl,__heapptr    ; Get global HeapPtr
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                ld      (hl),de
+; [79]   P := Ptr(32768); (* GetHeapStart; *)
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      de,32768        ; Literal 32768
+                pop     hl
+                ld      (hl),de
+; [80]   FreeMem(P, Bytes);
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                pop     hl
+                call    __freemem
+; [81] end;
+exit3:          ld      sp,ix           ; Epilogue
+                pop     hl
+                ld      (display+4),hl
+                pop     ix
+                ret
+; [82] 
+; [83] function MemAvail: Integer;
+; 
+; [84] var
+; [85]   P: PBlock;
+; [86]   I: Integer;
+; [87] begin
+; var MemAvail(+6), P(-2), I(-4)
+; 
+func4:          push    ix              ; Prologue
+                ld      hl,(display+4)
+                push    hl
+                ld      ix,0
+                add     ix,sp
+                ld      (display+4),ix
+                ld      hl,-4
+                add     hl,sp
+                ld      sp,hl
+; [88]   P := HeapPtr;
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      hl,__heapptr    ; Get global HeapPtr
+                ld      de,(hl)
+                pop     hl
+                ld      (hl),de
+; [89]   I := 0;
+                ld      de,ix
+                ld      hl,-4
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                ld      (hl),de
+; [90]   while P <> nil do
+while6:
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,0            ; Literal 0
+                pop     hl
+                call    __int16_neq
+                ld      h,0
+                ld      l,a
+                push    hl
+; [91]   begin
+                pop     hl
+                bit     0,l
+                jp      z,false7
+; [92]     I := I + P^.Size;
+                ld      de,ix
+                ld      hl,-4
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-4
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      e,(hl)
+                inc     hl
+                ld      d,(hl)
+                push    de
+                ld      de,2            ; Literal 2
+                pop     hl
+                add     hl,de
+                ld      de,(hl)
+                pop     hl
+                add     hl,de
+                ld      de,hl
+                pop     hl
+                ld      (hl),de
+; [93]     P := P^.Next;
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      e,(hl)
+                inc     hl
+                ld      d,(hl)
+                push    de
+                ld      de,0            ; Literal 0
+                pop     hl
+                add     hl,de
+                ld      de,(hl)
+                pop     hl
+                ld      (hl),de
+; [94]   end;
+                jp      while6
+false7:
+; [95] 
+; [96]   MemAvail := I;
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-4
+                add     hl,de
+                ld      de,(hl)
+                pop     hl
+                ld      (hl),de
+; [97] end;
+exit5:          ld      sp,ix           ; Epilogue
+                pop     hl
+                ld      (display+4),hl
+                pop     ix
+                ret
+; [98] 
+; [99] function MaxAvail: Integer;
+; 
+; [100] var
+; [101]   P: PBlock;
+; [102]   I: Integer;
+; [103] begin
+; var MaxAvail(+6), P(-2), I(-4)
+; 
+func8:          push    ix              ; Prologue
+                ld      hl,(display+4)
+                push    hl
+                ld      ix,0
+                add     ix,sp
+                ld      (display+4),ix
+                ld      hl,-4
+                add     hl,sp
+                ld      sp,hl
+; [104]   P := HeapPtr;
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      hl,__heapptr    ; Get global HeapPtr
+                ld      de,(hl)
+                pop     hl
+                ld      (hl),de
+; [105]   I := 0;
+                ld      de,ix
+                ld      hl,-4
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                ld      (hl),de
+; [106]   while P <> nil do
+while10:
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,0            ; Literal 0
+                pop     hl
+                call    __int16_neq
+                ld      h,0
+                ld      l,a
+                push    hl
+; [107]   begin
+                pop     hl
+                bit     0,l
+                jp      z,false11
+; [108]     if P^.Size > I then I := P^.Size;
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      e,(hl)
+                inc     hl
+                ld      d,(hl)
+                push    de
+                ld      de,2            ; Literal 2
+                pop     hl
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,ix
+                ld      hl,-4
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                pop     de
+                call    __int16_lt
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,false12
+                ld      de,ix
+                ld      hl,-4
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      e,(hl)
+                inc     hl
+                ld      d,(hl)
+                push    de
+                ld      de,2            ; Literal 2
+                pop     hl
+                add     hl,de
+                ld      de,(hl)
+                pop     hl
+                ld      (hl),de
+false12:
+; [109]     P := P^.Next;
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      e,(hl)
+                inc     hl
+                ld      d,(hl)
+                push    de
+                ld      de,0            ; Literal 0
+                pop     hl
+                add     hl,de
+                ld      de,(hl)
+                pop     hl
+                ld      (hl),de
+; [110]   end;
+                jp      while10
+false11:
+; [111] 
+; [112]   MaxAvail := I;
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-4
+                add     hl,de
+                ld      de,(hl)
+                pop     hl
+                ld      (hl),de
+; [113] end;
+exit9:          ld      sp,ix           ; Epilogue
+                pop     hl
+                ld      (display+4),hl
+                pop     ix
+                ret
+; [114] 
+; [115] type
+; 
+; [116]   TString = String[255];
+; [117] 
+; [118] function Random(Range: Integer): Integer; register; external '__random';
+; [119] 
+; [120] function Length(S: TString): Integer; stdcall; external '__length';
+; 
+; [121] function Concat(S, T: TString): TString; stdcall; external '__concat';
+; 
+; [122] function Pos(S, T: TString): Integer; stdcall; external '__pos';
+; 
+; [123] function Copy(S: TString; Start: Integer; Count: Integer): TString; stdcall; external '__copy';
+; 
+; [124] procedure Insert(S: TString; var T: TString; Start: Integer); stdcall; external '__insert';
+; 
+; [125] procedure Delete(var S: TString; Start: Integer; Count: Integer); stdcall; external '__delete';
+; 
+; [126] 
+; [127] {
+; [128]   procedure Val(S: TString; var I, Code: Integer); stdcall; external '__val_int';
+; [129] procedure Str(I: Integer; var S: TString); stdcall; external '__str_int';
+; [130] }
+; [131] 
+; [132] procedure ClrScr; register; external '__clrscr';
+; 
+; [133] procedure GotoXY(X, Y: Integer); register; external '__gotoxy';
+; 
+; [134] procedure TextColor(I: Integer); register; external '__textfg';
+; 
+; [135] procedure TextBackground(I: Integer); register; external '__textbg';
+; 
+; [136] procedure CursorOn; register; external '__cursor_on';
+; 
+; [137] procedure CursorOff; register; external '__cursor_off';
+; 
+; [138] 
+; [139] (* Arithmetic functions *)
+; [140] 
+; [141] (* function Abs(I: Integer): Integer  *) (* built-in *)
+; [142] (* function Abs(R: Real): Real        *) (* built-in *)
+; [143] function ArcTan(R: Real): Real; register; external 'ATN';
+; 
+; [144] function Cos(R: Real): Real; register; external 'COS';
+; 
+; [145] function Exp(R: Real): Real; register; external 'EXP';
+; 
+; [146] function Frac(R: Real): Real; register; external 'FRAC';
+; 
+; [147] function Int(R: Real): Real; register; external 'INT';
+; 
+; [148] function Ln(R: Real): Real; register; external 'LN';
+; 
+; [149] function Log(R: Real): Real; register; external 'LOG';
+; 
+; [150] function Pi: Real; register; external 'ACPI';
+; 
+; [151] function Sin(R: Real): Real; register; external 'SIN';
+; 
+; [152] function Sqr(R: Real): Real; register; external '__fltpwr2';
+; 
+; [153] function Sqrt(R: Real): Real; register; external 'SQR';
+; 
+; [154] function Tan(R: Real): Real; register; external 'TAN';
+; 
+; [155] 
+; [156] (* Scalar functions *
+; [157] 
+; [158] (* Pred, Succ, Odd *)
+; [159] 
+; [160] (* Transfer functions *)
+; [161] 
+; [162] (* Chr, Ord, Round, Trunc *)
+; [163] 
+; [164] (* Miscellaneous functions *)
+; [165] 
+; [166] (* 
+; [167]   Hi ld l,h, ld h,0
+; [168]   KeyPressed
+; [169]   Lo ld h,0
+; [170]   Random
+; [171]   Random(I)
+; [172]   ParamCount
+; [173]   ParamStr
+; [174]   SizeOf ok
+; [175]   Swap ld a,h, ld h,l, ld l,a
+; [176]   UpCase  -> lib z80
+; [177] *)
+; [0] program Monkey;
+; 
+; [1] 
+; [2] {$I /Users/joerg/Projekte/pl0/lib/Files.pas}
+; [0] type
+; [1]   FileControlBlock = record
+; [2]     DR: Byte;
+; [3]     FN: array[0..7] of Char;
+; [4]     TN: array[0..2] of Char;
+; [5]     EX, S1, S2, RC: Byte;
+; [6]     AL: array[0..15] of Byte;
+; [7]     CR: Byte;
+; [8]     RN: array[0..2] of Byte;
+; [9]   end;
+; [10] 
+; [11]   Text = record
+; [12]     Offset: Integer;
+; [13]     Writing: Boolean;
+; [14]     FCB: FileControlBlock;
+; [15]     DMA: array[0..127] of Char;
+; [16]   end;
+; [17] 
+; [18] procedure Assign(var T: Text; S: TString);
+; [19] var
+; [20]   I: Integer;
+; [21] begin
+; var T(+262), S(+6), I(-2)
+; 
+proc38:         push    ix              ; Prologue
+                ld      hl,(display+4)
+                push    hl
+                ld      ix,0
+                add     ix,sp
+                ld      (display+4),ix
+                ld      hl,-2
+                add     hl,sp
+                ld      sp,hl
+; [22]   T.FCB.DR := 0;
+                ld      de,ix
+                ld      hl,262
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,3            ; Literal 3
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                ld      (hl),e
+; [23] 
+; [24]   for I := 1 to 8 do
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      de,1            ; Literal 1
+                pop     hl
+                ld      (hl),de
+                ld      de,8            ; Literal 8
+                push    de
+                push    de
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                pop     hl
+                call    __int16_geq
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,forbreak41
+forloop40:
+; [25]     T.FCB.FN[I - 1] := S[I];
+                ld      de,ix
+                ld      hl,262
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,3            ; Literal 3
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,1            ; Literal 1
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,1            ; Literal 1
+                pop     hl
+                xor     a
+                sbc     hl,de
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                pop     hl
+                add     hl,de
+                ld      d,0
+                ld      e,(hl)
+                pop     hl
+                ld      (hl),e
+fornext42:
+                pop     de              ; Dup and check limit
+                push    de
+                push    de
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                pop     de
+                call    __int16_lt
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,forbreak41
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                inc     de
+                ld      (hl),de
+                jp      forloop40
+forbreak41:     pop     de              ; Cleanup limit
+; [26] 
+; [27]   for I := 10 to 12 do
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      de,10           ; Literal 10
+                pop     hl
+                ld      (hl),de
+                ld      de,12           ; Literal 12
+                push    de
+                push    de
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                pop     hl
+                call    __int16_geq
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,forbreak44
+forloop43:
+; [28]     T.FCB.TN[I - 10] := S[I];
+                ld      de,ix
+                ld      hl,262
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,3            ; Literal 3
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,9            ; Literal 9
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,10           ; Literal 10
+                pop     hl
+                xor     a
+                sbc     hl,de
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                pop     hl
+                add     hl,de
+                ld      d,0
+                ld      e,(hl)
+                pop     hl
+                ld      (hl),e
+fornext45:
+                pop     de              ; Dup and check limit
+                push    de
+                push    de
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                pop     de
+                call    __int16_lt
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,forbreak44
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                inc     de
+                ld      (hl),de
+                jp      forloop43
+forbreak44:     pop     de              ; Cleanup limit
+; [29] end;
+exit39:         ld      sp,ix           ; Epilogue
+                pop     hl
+                ld      (display+4),hl
+                pop     ix
+                ret
+; [30] 
+; [31] procedure Reset(var T: Text);
+; 
+; [32] var
+; [33]   A: Integer;
+; [34] begin
+; var T(+6), A(-2)
+; 
+proc46:         push    ix              ; Prologue
+                ld      hl,(display+4)
+                push    hl
+                ld      ix,0
+                add     ix,sp
+                ld      (display+4),ix
+                ld      hl,-2
+                add     hl,sp
+                ld      sp,hl
+; [35]   T.FCB.EX := 0;
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,3            ; Literal 3
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,12           ; Literal 12
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                ld      (hl),e
+; [36]   T.FCB.S1 := 0;
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,3            ; Literal 3
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,13           ; Literal 13
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                ld      (hl),e
+; [37]   T.FCB.S2 := 0;
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,3            ; Literal 3
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,14           ; Literal 14
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                ld      (hl),e
+; [38]   T.FCB.RC := 0;
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,3            ; Literal 3
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,15           ; Literal 15
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                ld      (hl),e
+; [39]   T.FCB.CR := 0;
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,3            ; Literal 3
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,32           ; Literal 32
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                ld      (hl),e
+; [40] 
+; [41]   T.Writing := False;
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,2            ; Literal 2
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                ld      (hl),e
+; [42] 
+; [43]   A := Bdos(15, Addr(T.FCB));
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      de,15           ; Literal 15
+                push    de
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,3            ; Literal 3
+                pop     hl
+                add     hl,de
+                ld      de,hl
+                pop     hl
+                push    ix
+                ld      c,l
+                call    5
+                pop     ix
+                ld      l,a
+                ld      h,0
+                ld      de,hl
+                pop     hl
+                ld      (hl),de
+; [44] 
+; [45]   T.Offset := 128;
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,0            ; Literal 0
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,128          ; Literal 128
+                pop     hl
+                ld      (hl),de
+; [46] end;
+exit47:         ld      sp,ix           ; Epilogue
+                pop     hl
+                ld      (display+4),hl
+                pop     ix
+                ret
+; [47] 
+; [48] procedure Rewrite(var T: Text);
+; 
+; [49] var
+; [50]   A: Integer;
+; [51] begin
+; var T(+6), A(-2)
+; 
+proc48:         push    ix              ; Prologue
+                ld      hl,(display+4)
+                push    hl
+                ld      ix,0
+                add     ix,sp
+                ld      (display+4),ix
+                ld      hl,-2
+                add     hl,sp
+                ld      sp,hl
+; [52]   T.FCB.EX := 0;
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,3            ; Literal 3
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,12           ; Literal 12
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                ld      (hl),e
+; [53]   T.FCB.S1 := 0;
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,3            ; Literal 3
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,13           ; Literal 13
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                ld      (hl),e
+; [54]   T.FCB.S2 := 0;
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,3            ; Literal 3
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,14           ; Literal 14
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                ld      (hl),e
+; [55]   T.FCB.RC := 0;
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,3            ; Literal 3
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,15           ; Literal 15
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                ld      (hl),e
+; [56]   T.FCB.CR := 0;
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,3            ; Literal 3
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,32           ; Literal 32
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                ld      (hl),e
+; [57] 
+; [58]   T.Writing := True;
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,2            ; Literal 2
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,1            ; Literal 1
+                pop     hl
+                ld      (hl),e
+; [59] 
+; [60]   A := Bdos(19, Addr(T.FCB));
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      de,19           ; Literal 19
+                push    de
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,3            ; Literal 3
+                pop     hl
+                add     hl,de
+                ld      de,hl
+                pop     hl
+                push    ix
+                ld      c,l
+                call    5
+                pop     ix
+                ld      l,a
+                ld      h,0
+                ld      de,hl
+                pop     hl
+                ld      (hl),de
+; [61]   A := Bdos(22, Addr(T.FCB));
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      de,22           ; Literal 22
+                push    de
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,3            ; Literal 3
+                pop     hl
+                add     hl,de
+                ld      de,hl
+                pop     hl
+                push    ix
+                ld      c,l
+                call    5
+                pop     ix
+                ld      l,a
+                ld      h,0
+                ld      de,hl
+                pop     hl
+                ld      (hl),de
+; [62] 
+; [63]   T.Offset := 0;
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,0            ; Literal 0
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                ld      (hl),de
+; [64] end;
+exit49:         ld      sp,ix           ; Epilogue
+                pop     hl
+                ld      (display+4),hl
+                pop     ix
+                ret
+; [65] 
+; [66] procedure ReadRec(var T: Text);
+; 
+; [67] var
+; [68]   A: Integer;
+; [69] begin
+; var T(+6), A(-2)
+; 
+proc50:         push    ix              ; Prologue
+                ld      hl,(display+4)
+                push    hl
+                ld      ix,0
+                add     ix,sp
+                ld      (display+4),ix
+                ld      hl,-2
+                add     hl,sp
+                ld      sp,hl
+; [70]   A := Bdos(26, Addr(T.DMA));
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      de,26           ; Literal 26
+                push    de
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,39           ; Literal 39
+                pop     hl
+                add     hl,de
+                ld      de,hl
+                pop     hl
+                push    ix
+                ld      c,l
+                call    5
+                pop     ix
+                ld      l,a
+                ld      h,0
+                ld      de,hl
+                pop     hl
+                ld      (hl),de
+; [71]   A := Bdos(20, Addr(T.FCB));
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      de,20           ; Literal 20
+                push    de
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,3            ; Literal 3
+                pop     hl
+                add     hl,de
+                ld      de,hl
+                pop     hl
+                push    ix
+                ld      c,l
+                call    5
+                pop     ix
+                ld      l,a
+                ld      h,0
+                ld      de,hl
+                pop     hl
+                ld      (hl),de
+; [72]   T.Offset := 0;
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,0            ; Literal 0
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                ld      (hl),de
+; [73] end;
+exit51:         ld      sp,ix           ; Epilogue
+                pop     hl
+                ld      (display+4),hl
+                pop     ix
+                ret
+; [74] 
+; [75] function ReadChar(var T: Text): Char;
+; 
+; [76] var
+; [77]   C: Char;
+; [78] begin
+; var ReadChar(+8), T(+6), C(-2)
+; 
+func52:         push    ix              ; Prologue
+                ld      hl,(display+4)
+                push    hl
+                ld      ix,0
+                add     ix,sp
+                ld      (display+4),ix
+                ld      hl,-2
+                add     hl,sp
+                ld      sp,hl
+; [79]   if T.Offset > 127 then ReadRec(T);
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,0            ; Literal 0
+                pop     hl
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,127          ; Literal 127
+                ld      hl,de
+                pop     de
+                call    __int16_lt
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,false54
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                call    proc50
+; Cleanup 2 bytes
+                pop     hl
+false54:
+; [80]   C := T.DMA[T.Offset];
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,39           ; Literal 39
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,0            ; Literal 0
+                pop     hl
+                add     hl,de
+                ld      de,(hl)
+                pop     hl
+                add     hl,de
+                ld      d,0
+                ld      e,(hl)
+                pop     hl
+                ld      (hl),e
+; [81]   if C <> #26 then T.Offset := T.Offset + 1;
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      d,0
+                ld      e,(hl)
+                push    de
+                ld      de,26           ; Literal 26
+                pop     hl
+                call    __int16_neq
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,false55
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,0            ; Literal 0
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,0            ; Literal 0
+                pop     hl
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,1            ; Literal 1
+                pop     hl
+                add     hl,de
+                ld      de,hl
+                pop     hl
+                ld      (hl),de
+false55:
+; [82]   ReadChar := C;
+                ld      de,ix
+                ld      hl,8
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      d,0
+                ld      e,(hl)
+                pop     hl
+                ld      (hl),e
+; [83] end;
+exit53:         ld      sp,ix           ; Epilogue
+                pop     hl
+                ld      (display+4),hl
+                pop     ix
+                ret
+; [84] 
+; [85] procedure ReadLine(var T: Text; var S: TString);
+; 
+; [86] var
+; [87]   C: Char;
+; [88] begin
+; var T(+8), S(+6), C(-2)
+; 
+proc56:         push    ix              ; Prologue
+                ld      hl,(display+4)
+                push    hl
+                ld      ix,0
+                add     ix,sp
+                ld      (display+4),ix
+                ld      hl,-2
+                add     hl,sp
+                ld      sp,hl
+; [89]   S := '';
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      hl,string58
+                pop     de
+                ld      a,255
+                call    __movestr
+; [90] 
+; [91]   while Length(S) < 255 do
+while59:
+                push    hl
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                call    __loadstr
+                call    __length
+; Cleanup 256 bytes
+                ld      hl,256          ; Clear
+                add     hl,sp
+                ld      sp,hl
+                ld      de,255          ; Literal 255
+                pop     hl
+                call    __int16_lt
+                ld      h,0
+                ld      l,a
+                push    hl
+; [92]   begin
+                pop     hl
+                bit     0,l
+                jp      z,false60
+; [93]     C := ReadChar(T);
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                push    hl
+                ld      de,ix
+                ld      hl,8
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                call    func52
+; Cleanup 2 bytes
+                pop     hl
+                pop     de
+                pop     hl
+                ld      (hl),e
+; [94] 
+; [95]     if C = #10 then Break;
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      d,0
+                ld      e,(hl)
+                push    de
+                ld      de,10           ; Literal 10
+                pop     hl
+                call    __int16_eq
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,false61
+                jp      false60         ; Break
+false61:
+; [96]     if C = #26 then Break;
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      d,0
+                ld      e,(hl)
+                push    de
+                ld      de,26           ; Literal 26
+                pop     hl
+                call    __int16_eq
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,false62
+                jp      false60         ; Break
+false62:
+; [97] 
+; [98]     if C >= ' ' then S := S + C;
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      d,0
+                ld      e,(hl)
+                push    de
+                ld      de,32           ; Literal 32
+                pop     hl
+                call    __int16_geq
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,false63
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                call    __loadstr
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      d,0
+                ld      e,(hl)
+                ld      hl,-254
+                add     hl,sp
+                ld      sp,hl
+                ld      d,e
+                ld      e,1
+                push    de
+                call    __stradd
+                ld      hl,256          ; Clear
+                add     hl,sp
+                ld      sp,hl
+                ld      a,255
+                call    __storestr
+false63:
+; [99]   end;
+                jp      while59
+false60:
+; [100] end;
+exit57:         ld      sp,ix           ; Epilogue
+                pop     hl
+                ld      (display+4),hl
+                pop     ix
+                ret
+; [101] 
+; [102] procedure WriteRec(var T: Text);
+; 
+; [103] var
+; [104]   A: Integer;
+; [105] begin
+; var T(+6), A(-2)
+; 
+proc64:         push    ix              ; Prologue
+                ld      hl,(display+4)
+                push    hl
+                ld      ix,0
+                add     ix,sp
+                ld      (display+4),ix
+                ld      hl,-2
+                add     hl,sp
+                ld      sp,hl
+; [106]   A := Bdos(26, Addr(T.DMA));
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      de,26           ; Literal 26
+                push    de
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,39           ; Literal 39
+                pop     hl
+                add     hl,de
+                ld      de,hl
+                pop     hl
+                push    ix
+                ld      c,l
+                call    5
+                pop     ix
+                ld      l,a
+                ld      h,0
+                ld      de,hl
+                pop     hl
+                ld      (hl),de
+; [107]   A := Bdos(21, Addr(T.FCB));
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      de,21           ; Literal 21
+                push    de
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,3            ; Literal 3
+                pop     hl
+                add     hl,de
+                ld      de,hl
+                pop     hl
+                push    ix
+                ld      c,l
+                call    5
+                pop     ix
+                ld      l,a
+                ld      h,0
+                ld      de,hl
+                pop     hl
+                ld      (hl),de
+; [108]   T.Offset := 0;
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,0            ; Literal 0
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                ld      (hl),de
+; [109] end;
+exit65:         ld      sp,ix           ; Epilogue
+                pop     hl
+                ld      (display+4),hl
+                pop     ix
+                ret
+; [110] 
+; [111] 
+; [112] procedure WriteChar(var T: Text; C: Char);
+; 
+; [113] begin
+; var T(+8), C(+6)
+; 
+proc66:         push    ix              ; Prologue
+                ld      hl,(display+4)
+                push    hl
+                ld      ix,0
+                add     ix,sp
+                ld      (display+4),ix
+                ld      hl,0
+                add     hl,sp
+                ld      sp,hl
+; [114]   if T.Offset > 127 then WriteRec(T);
+                ld      de,ix
+                ld      hl,8
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,0            ; Literal 0
+                pop     hl
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,127          ; Literal 127
+                ld      hl,de
+                pop     de
+                call    __int16_lt
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,false68
+                ld      de,ix
+                ld      hl,8
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                call    proc64
+; Cleanup 2 bytes
+                pop     hl
+false68:
+; [115]   T.DMA[T.Offset] := C;
+                ld      de,ix
+                ld      hl,8
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,39           ; Literal 39
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,8
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,0            ; Literal 0
+                pop     hl
+                add     hl,de
+                ld      de,(hl)
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      d,0
+                ld      e,(hl)
+                pop     hl
+                ld      (hl),e
+; [116]   T.Offset := T.Offset + 1;
+                ld      de,ix
+                ld      hl,8
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,0            ; Literal 0
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,8
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,0            ; Literal 0
+                pop     hl
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,1            ; Literal 1
+                pop     hl
+                add     hl,de
+                ld      de,hl
+                pop     hl
+                ld      (hl),de
+; [117] end;
+exit67:         ld      sp,ix           ; Epilogue
+                pop     hl
+                ld      (display+4),hl
+                pop     ix
+                ret
+; [118] 
+; [119] procedure WriteLine(var T: Text; S: TString);
+; 
+; [120] var
+; [121]   I: Integer;
+; [122] begin
+; var T(+262), S(+6), I(-2)
+; 
+proc69:         push    ix              ; Prologue
+                ld      hl,(display+4)
+                push    hl
+                ld      ix,0
+                add     ix,sp
+                ld      (display+4),ix
+                ld      hl,-2
+                add     hl,sp
+                ld      sp,hl
+; [123]   for I := 1 to Length(S) do WriteChar(T, S[I]);
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      de,1            ; Literal 1
+                pop     hl
+                ld      (hl),de
+                push    hl
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                call    __loadstr
+                call    __length
+; Cleanup 256 bytes
+                ld      hl,256          ; Clear
+                add     hl,sp
+                ld      sp,hl
+                pop     de              ; Dup and pre-check limit
+                push    de
+                push    de
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                pop     hl
+                call    __int16_geq
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,forbreak72
+forloop71:
+                ld      de,ix
+                ld      hl,262
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                pop     hl
+                add     hl,de
+                ld      d,0
+                ld      e,(hl)
+                push    de
+                call    proc66
+; Cleanup 2 bytes
+                pop     hl
+; Cleanup 2 bytes
+                pop     hl
+fornext73:
+                pop     de              ; Dup and check limit
+                push    de
+                push    de
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                pop     de
+                call    __int16_lt
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,forbreak72
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                inc     de
+                ld      (hl),de
+                jp      forloop71
+forbreak72:     pop     de              ; Cleanup limit
+; [124] 
+; [125]   WriteChar(T, #13);
+                ld      de,ix
+                ld      hl,262
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,13           ; Literal 13
+                push    de
+                call    proc66
+; Cleanup 2 bytes
+                pop     hl
+; Cleanup 2 bytes
+                pop     hl
+; [126]   WriteChar(T, #10);
+                ld      de,ix
+                ld      hl,262
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,10           ; Literal 10
+                push    de
+                call    proc66
+; Cleanup 2 bytes
+                pop     hl
+; Cleanup 2 bytes
+                pop     hl
+; [127] end;
+exit70:         ld      sp,ix           ; Epilogue
+                pop     hl
+                ld      (display+4),hl
+                pop     ix
+                ret
+; [128] 
+; [129] function IsEof(var T: Text): Boolean;
+; 
+; [130] begin
+; var IsEof(+8), T(+6)
+; 
+func74:         push    ix              ; Prologue
+                ld      hl,(display+4)
+                push    hl
+                ld      ix,0
+                add     ix,sp
+                ld      (display+4),ix
+                ld      hl,0
+                add     hl,sp
+                ld      sp,hl
+; [131]   if T.Offset > 127 then ReadRec(T);
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,0            ; Literal 0
+                pop     hl
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,127          ; Literal 127
+                ld      hl,de
+                pop     de
+                call    __int16_lt
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,false76
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                call    proc50
+; Cleanup 2 bytes
+                pop     hl
+false76:
+; [132]   IsEof := T.DMA[T.Offset] = #26;
+                ld      de,ix
+                ld      hl,8
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,39           ; Literal 39
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,0            ; Literal 0
+                pop     hl
+                add     hl,de
+                ld      de,(hl)
+                pop     hl
+                add     hl,de
+                ld      d,0
+                ld      e,(hl)
+                push    de
+                ld      de,26           ; Literal 26
+                pop     hl
+                call    __int16_eq
+                ld      h,0
+                ld      l,a
+                ld      de,hl
+                pop     hl
+                ld      (hl),e
+; [133] end;        
+exit75:         ld      sp,ix           ; Epilogue
+                pop     hl
+                ld      (display+4),hl
+                pop     ix
+                ret
+; [134] 
+; [135] procedure Close(var T: Text);
+; 
+; [136] var
+; [137]   A: Integer;
+; [138] begin
+; var T(+6), A(-2)
+; 
+proc77:         push    ix              ; Prologue
+                ld      hl,(display+4)
+                push    hl
+                ld      ix,0
+                add     ix,sp
+                ld      (display+4),ix
+                ld      hl,-2
+                add     hl,sp
+                ld      sp,hl
+; [139]   if T.Writing then
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,2            ; Literal 2
+                pop     hl
+                add     hl,de
+                ld      d,0
+                ld      e,(hl)
+                push    de
+; [140]   begin
+                pop     hl
+                bit     0,l
+                jp      z,false79
+; [141]     WriteChar(T, #26);
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,26           ; Literal 26
+                push    de
+                call    proc66
+; Cleanup 2 bytes
+                pop     hl
+; Cleanup 2 bytes
+                pop     hl
+; [142]     WriteRec(T);
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                call    proc64
+; Cleanup 2 bytes
+                pop     hl
+; [143]   end;
+false79:
+; [144] 
+; [145]   A := Bdos(16, Addr(T.FCB));
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      de,16           ; Literal 16
+                push    de
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,3            ; Literal 3
+                pop     hl
+                add     hl,de
+                ld      de,hl
+                pop     hl
+                push    ix
+                ld      c,l
+                call    5
+                pop     ix
+                ld      l,a
+                ld      h,0
+                ld      de,hl
+                pop     hl
+                ld      (hl),de
+; [146] end;
+exit78:         ld      sp,ix           ; Epilogue
+                pop     hl
+                ld      (display+4),hl
+                pop     ix
+                ret
+; [3] 
+; [4] type
+; 
+; [5]   TMonkey = record
+; [6]     Items: array[0..63] of Real;
+; [7]     Count: Integer;
+; [8] 
+; [9]     OpType: Char;
+; [10]     OpArg: Real;
+; [11]     Test: Real;
+; [12] 
+; [13]     IfTrue, IfFalse: Integer;
+; [14] 
+; [15]     Activity: Real;
+; [16]   end;
+; [17] 
+; [18] const
+; [19]   Inspect: Integer = 1;
+const80:
+                dw      1
+; [20] 
+; [21] var
+; [22]   Monkeys: array[0..7] of TMonkey;
+global81:       ds      3272            ; Global Monkeys
+; [23] 
+; [24]   Factor: Real;
+global82:       ds      6               ; Global Factor
+; [25] 
+; [26]   Total: Integer;
+global83:       ds      2               ; Global Total
+; [27] 
+; [28] procedure Init(var Monkey: TMonkey);
+; [29] begin
+; var Monkey(+6)
+; 
+proc84:         push    ix              ; Prologue
+                ld      hl,(display+4)
+                push    hl
+                ld      ix,0
+                add     ix,sp
+                ld      (display+4),ix
+                ld      hl,0
+                add     hl,sp
+                ld      sp,hl
+; [30]   with Monkey do
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+; [31]   begin
+; [32]     Count := 0;
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                ld      de,384
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                ld      (hl),de
+; [33]     Activity := 0;
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                ld      de,403
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                ld      hl,de
+                call    FLOAT
+                exx
+                pop     hl
+                call    __storefp
+; [34]   end;
+                pop     bc
+; [35] end;
+exit85:         ld      sp,ix           ; Epilogue
+                pop     hl
+                ld      (display+4),hl
+                pop     ix
+                ret
+; [36] 
+; [37] procedure Push(var Monkey: TMonkey; R: Real);
+; 
+; [38] begin
+; var Monkey(+12), R(+6)
+; 
+proc86:         push    ix              ; Prologue
+                ld      hl,(display+4)
+                push    hl
+                ld      ix,0
+                add     ix,sp
+                ld      (display+4),ix
+                ld      hl,0
+                add     hl,sp
+                ld      sp,hl
+; [39]   with Monkey do
+                ld      de,ix
+                ld      hl,12
+                add     hl,de
+                ld      de,(hl)
+                push    de
+; [40]   begin
+; [41]     Items[Count] := R;
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                ld      de,384
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,6            ; Literal 6
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                call    __loadfp
+                exx
+                pop     hl
+                call    __storefp
+; [42]     Count := Count + 1;
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                ld      de,384
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                ld      de,384
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,1            ; Literal 1
+                pop     hl
+                add     hl,de
+                ld      de,hl
+                pop     hl
+                ld      (hl),de
+; [43]   end;
+                pop     bc
+; [44] end;
+exit87:         ld      sp,ix           ; Epilogue
+                pop     hl
+                ld      (display+4),hl
+                pop     ix
+                ret
+; [45] 
+; [46] function Pop(var Monkey: TMonkey): Real;
+; 
+; [47] begin
+; var Pop(+8), Monkey(+6)
+; 
+func88:         push    ix              ; Prologue
+                ld      hl,(display+4)
+                push    hl
+                ld      ix,0
+                add     ix,sp
+                ld      (display+4),ix
+                ld      hl,0
+                add     hl,sp
+                ld      sp,hl
+; [48]   with Monkey do
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+; [49]   begin
+; [50]     Count := Count - 1;
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                ld      de,384
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                ld      de,384
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,1            ; Literal 1
+                pop     hl
+                xor     a
+                sbc     hl,de
+                ld      de,hl
+                pop     hl
+                ld      (hl),de
+; [51]     Pop := Items[Count];
+                ld      de,ix
+                ld      hl,8
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                ld      de,384
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,6            ; Literal 6
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                call    __loadfp
+                exx
+                pop     hl
+                call    __storefp
+; [52]     Activity := Activity + 1;
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                ld      de,403
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                ld      de,403
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,1            ; Literal 1
+                ld      hl,de
+                call    FLOAT
+                exx
+                popfp
+                call    FPADD
+                exx
+                pop     hl
+                call    __storefp
+; [53]   end;
+                pop     bc
+; [54] end;
+exit89:         ld      sp,ix           ; Epilogue
+                pop     hl
+                ld      (display+4),hl
+                pop     ix
+                ret
+; [55] 
+; [56] function IsEmpty(var Monkey: TMonkey): Boolean;
+; 
+; [57] begin
+; var IsEmpty(+8), Monkey(+6)
+; 
+func90:         push    ix              ; Prologue
+                ld      hl,(display+4)
+                push    hl
+                ld      ix,0
+                add     ix,sp
+                ld      (display+4),ix
+                ld      hl,0
+                add     hl,sp
+                ld      sp,hl
+; [58]   IsEmpty := Monkey.Count = 0;
+                ld      de,ix
+                ld      hl,8
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,384          ; Literal 384
+                pop     hl
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,0            ; Literal 0
+                pop     hl
+                call    __int16_eq
+                ld      h,0
+                ld      l,a
+                ld      de,hl
+                pop     hl
+                ld      (hl),e
+; [59] end;
+exit91:         ld      sp,ix           ; Epilogue
+                pop     hl
+                ld      (display+4),hl
+                pop     ix
+                ret
+; [60] 
+; [61] procedure Load;
+; 
+; [62] var
+; [63]   I, P, Error: Integer;
+; [64]   S: TString;
+; [65]   T: Text;
+; [66] begin
+; var I(-2), P(-4), Error(-6), S(-262), T(-429)
+; 
+proc92:         push    ix              ; Prologue
+                ld      hl,(display+4)
+                push    hl
+                ld      ix,0
+                add     ix,sp
+                ld      (display+4),ix
+                ld      hl,-429
+                add     hl,sp
+                ld      sp,hl
+; [67]   Total := 0;
+                ld      hl,global83     ; Get global Total
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                ld      (hl),de
+; [68] 
+; [69]   Assign(T, 'EXAMPLE .TXT');
+                ld      de,ix
+                ld      hl,-429
+                add     hl,de
+                push    hl
+                ld      hl,string94
+                call    __loadstr
+                call    proc38
+; Cleanup 2 bytes
+                pop     hl
+; Cleanup 256 bytes
+                ld      hl,256          ; Clear
+                add     hl,sp
+                ld      sp,hl
+; [70]   Reset(T);
+                ld      de,ix
+                ld      hl,-429
+                add     hl,de
+                push    hl
+                call    proc46
+; Cleanup 2 bytes
+                pop     hl
+; [71] 
+; [72]   Factor := 1;
+                ld      hl,global82     ; Get global Factor
+                push    hl
+                ld      de,1            ; Literal 1
+                ld      hl,de
+                call    FLOAT
+                exx
+                pop     hl
+                call    __storefp
+; [73] 
+; [74]   while not IsEof(T) do
+while95:
+                push    hl
+                ld      de,ix
+                ld      hl,-429
+                add     hl,de
+                push    hl
+                call    func74
+; Cleanup 2 bytes
+                pop     hl
+                pop     hl              ; Not
+                ld      a,1
+                xor     l
+                ld      l,a
+                push    hl
+; [75]   begin
+                pop     hl
+                bit     0,l
+                jp      z,false96
+; [76]     ReadLine(T, S);
+                ld      de,ix
+                ld      hl,-429
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-262
+                add     hl,de
+                push    hl
+                call    proc56
+; Cleanup 2 bytes
+                pop     hl
+; Cleanup 2 bytes
+                pop     hl
+; [77]     Val(Copy(S, 8, 255), I, Error);
+                ld      hl,-256         ; Space
+                add     hl,sp
+                ld      sp,hl
+                ld      de,ix
+                ld      hl,-262
+                add     hl,de
+                call    __loadstr
+                ld      de,8            ; Literal 8
+                push    de
+                ld      de,255          ; Literal 255
+                push    de
+                call    __copy
+; Cleanup 256 bytes
+                ld      hl,256          ; Clear
+                add     hl,sp
+                ld      sp,hl
+; Cleanup 2 bytes
+                pop     hl
+; Cleanup 2 bytes
+                pop     hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-6
+                add     hl,de
+                push    hl
+                call    __val_int
+; [78] 
+; [79]     Init(Monkeys[Total]);
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      hl,global83     ; Get global Total
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                call    proc84
+; Cleanup 2 bytes
+                pop     hl
+; [80] 
+; [81]     ReadLine(T, S);
+                ld      de,ix
+                ld      hl,-429
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-262
+                add     hl,de
+                push    hl
+                call    proc56
+; Cleanup 2 bytes
+                pop     hl
+; Cleanup 2 bytes
+                pop     hl
+; [82]     S := Copy(S, 19, 255);
+                ld      de,ix
+                ld      hl,-262
+                add     hl,de
+                push    hl
+                ld      hl,-256         ; Space
+                add     hl,sp
+                ld      sp,hl
+                ld      de,ix
+                ld      hl,-262
+                add     hl,de
+                call    __loadstr
+                ld      de,19           ; Literal 19
+                push    de
+                ld      de,255          ; Literal 255
+                push    de
+                call    __copy
+; Cleanup 256 bytes
+                ld      hl,256          ; Clear
+                add     hl,sp
+                ld      sp,hl
+; Cleanup 2 bytes
+                pop     hl
+; Cleanup 2 bytes
+                pop     hl
+                ld      a,255
+                call    __storestr
+; [83]     while Length(S) <> 0 do
+while97:
+                push    hl
+                ld      de,ix
+                ld      hl,-262
+                add     hl,de
+                call    __loadstr
+                call    __length
+; Cleanup 256 bytes
+                ld      hl,256          ; Clear
+                add     hl,sp
+                ld      sp,hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                call    __int16_neq
+                ld      h,0
+                ld      l,a
+                push    hl
+; [84]     begin
+                pop     hl
+                bit     0,l
+                jp      z,false98
+; [85]       Val(Copy(S, 1, 2), I, Error);
+                ld      hl,-256         ; Space
+                add     hl,sp
+                ld      sp,hl
+                ld      de,ix
+                ld      hl,-262
+                add     hl,de
+                call    __loadstr
+                ld      de,1            ; Literal 1
+                push    de
+                ld      de,2            ; Literal 2
+                push    de
+                call    __copy
+; Cleanup 256 bytes
+                ld      hl,256          ; Clear
+                add     hl,sp
+                ld      sp,hl
+; Cleanup 2 bytes
+                pop     hl
+; Cleanup 2 bytes
+                pop     hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-6
+                add     hl,de
+                push    hl
+                call    __val_int
+; [86]       Push(Monkeys[Total], I);
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      hl,global83     ; Get global Total
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                call    FLOAT
+                pushfp
+                call    proc86
+; Cleanup 2 bytes
+                pop     hl
+; Cleanup 6 bytes
+                pop     hl
+                pop     hl
+                pop     hl
+; [87]       S := Copy(S, 5, 255);
+                ld      de,ix
+                ld      hl,-262
+                add     hl,de
+                push    hl
+                ld      hl,-256         ; Space
+                add     hl,sp
+                ld      sp,hl
+                ld      de,ix
+                ld      hl,-262
+                add     hl,de
+                call    __loadstr
+                ld      de,5            ; Literal 5
+                push    de
+                ld      de,255          ; Literal 255
+                push    de
+                call    __copy
+; Cleanup 256 bytes
+                ld      hl,256          ; Clear
+                add     hl,sp
+                ld      sp,hl
+; Cleanup 2 bytes
+                pop     hl
+; Cleanup 2 bytes
+                pop     hl
+                ld      a,255
+                call    __storestr
+; [88]     end;
+                jp      while97
+false98:
+; [89] 
+; [90]     ReadLine(T, S);
+                ld      de,ix
+                ld      hl,-429
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-262
+                add     hl,de
+                push    hl
+                call    proc56
+; Cleanup 2 bytes
+                pop     hl
+; Cleanup 2 bytes
+                pop     hl
+; [91]     Monkeys[Total].OpType := S[24];
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      hl,global83     ; Get global Total
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,386          ; Literal 386
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-262
+                add     hl,de
+                push    hl
+                ld      de,24           ; Literal 24
+                pop     hl
+                add     hl,de
+                ld      d,0
+                ld      e,(hl)
+                pop     hl
+                ld      (hl),e
+; [92]     S := Copy(S, 26, 255);
+                ld      de,ix
+                ld      hl,-262
+                add     hl,de
+                push    hl
+                ld      hl,-256         ; Space
+                add     hl,sp
+                ld      sp,hl
+                ld      de,ix
+                ld      hl,-262
+                add     hl,de
+                call    __loadstr
+                ld      de,26           ; Literal 26
+                push    de
+                ld      de,255          ; Literal 255
+                push    de
+                call    __copy
+; Cleanup 256 bytes
+                ld      hl,256          ; Clear
+                add     hl,sp
+                ld      sp,hl
+; Cleanup 2 bytes
+                pop     hl
+; Cleanup 2 bytes
+                pop     hl
+                ld      a,255
+                call    __storestr
+; [93]     if S = 'old' then I := -1 else Val(S, I, Error);
+                ld      de,ix
+                ld      hl,-262
+                add     hl,de
+                call    __loadstr
+                ld      hl,string99
+                call    __loadstr
+                call    __streq
+                ld      hl,512          ; Clear
+                add     hl,sp
+                ld      sp,hl
+                ld      hl,de
+                bit     0,l
+                jp      z,false100
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      de,1            ; Literal 1
+                ld      hl,0
+                xor     a
+                sbc     hl,de
+                ld      de,hl
+                pop     hl
+                ld      (hl),de
+                jp      endif101
+false100:
+                ld      de,ix
+                ld      hl,-262
+                add     hl,de
+                call    __loadstr
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-6
+                add     hl,de
+                push    hl
+                call    __val_int
+endif101:
+; [94]     Monkeys[Total].OpArg := I;
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      hl,global83     ; Get global Total
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,387          ; Literal 387
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                call    FLOAT
+                exx
+                pop     hl
+                call    __storefp
+; [95] 
+; [96]     ReadLine(T, S);
+                ld      de,ix
+                ld      hl,-429
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-262
+                add     hl,de
+                push    hl
+                call    proc56
+; Cleanup 2 bytes
+                pop     hl
+; Cleanup 2 bytes
+                pop     hl
+; [97]     Val(Copy(S, 22, 255), I, Error);
+                ld      hl,-256         ; Space
+                add     hl,sp
+                ld      sp,hl
+                ld      de,ix
+                ld      hl,-262
+                add     hl,de
+                call    __loadstr
+                ld      de,22           ; Literal 22
+                push    de
+                ld      de,255          ; Literal 255
+                push    de
+                call    __copy
+; Cleanup 256 bytes
+                ld      hl,256          ; Clear
+                add     hl,sp
+                ld      sp,hl
+; Cleanup 2 bytes
+                pop     hl
+; Cleanup 2 bytes
+                pop     hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-6
+                add     hl,de
+                push    hl
+                call    __val_int
+; [98]     Monkeys[Total].Test := I;
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      hl,global83     ; Get global Total
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,393          ; Literal 393
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                call    FLOAT
+                exx
+                pop     hl
+                call    __storefp
+; [99]     Factor := Factor * I;
+                ld      hl,global82     ; Get global Factor
+                push    hl
+                ld      hl,global82     ; Get global Factor
+                call    __loadfp
+                pushfp
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                call    FLOAT
+                exx
+                popfp
+                call    FPMUL
+                exx
+                pop     hl
+                call    __storefp
+; [100]     
+; [101]     ReadLine(T, S);
+                ld      de,ix
+                ld      hl,-429
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-262
+                add     hl,de
+                push    hl
+                call    proc56
+; Cleanup 2 bytes
+                pop     hl
+; Cleanup 2 bytes
+                pop     hl
+; [102]     Val(Copy(S, 30, 255), Monkeys[Total].IfTrue, Error);
+                ld      hl,-256         ; Space
+                add     hl,sp
+                ld      sp,hl
+                ld      de,ix
+                ld      hl,-262
+                add     hl,de
+                call    __loadstr
+                ld      de,30           ; Literal 30
+                push    de
+                ld      de,255          ; Literal 255
+                push    de
+                call    __copy
+; Cleanup 256 bytes
+                ld      hl,256          ; Clear
+                add     hl,sp
+                ld      sp,hl
+; Cleanup 2 bytes
+                pop     hl
+; Cleanup 2 bytes
+                pop     hl
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      hl,global83     ; Get global Total
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,399          ; Literal 399
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-6
+                add     hl,de
+                push    hl
+                call    __val_int
+; [103] 
+; [104]     ReadLine(T, S);
+                ld      de,ix
+                ld      hl,-429
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-262
+                add     hl,de
+                push    hl
+                call    proc56
+; Cleanup 2 bytes
+                pop     hl
+; Cleanup 2 bytes
+                pop     hl
+; [105]     Val(Copy(S, 31, 255), Monkeys[Total].IfFalse, Error);
+                ld      hl,-256         ; Space
+                add     hl,sp
+                ld      sp,hl
+                ld      de,ix
+                ld      hl,-262
+                add     hl,de
+                call    __loadstr
+                ld      de,31           ; Literal 31
+                push    de
+                ld      de,255          ; Literal 255
+                push    de
+                call    __copy
+; Cleanup 256 bytes
+                ld      hl,256          ; Clear
+                add     hl,sp
+                ld      sp,hl
+; Cleanup 2 bytes
+                pop     hl
+; Cleanup 2 bytes
+                pop     hl
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      hl,global83     ; Get global Total
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,401          ; Literal 401
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-6
+                add     hl,de
+                push    hl
+                call    __val_int
+; [106] 
+; [107]     ReadLine(T, S);
+                ld      de,ix
+                ld      hl,-429
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-262
+                add     hl,de
+                push    hl
+                call    proc56
+; Cleanup 2 bytes
+                pop     hl
+; Cleanup 2 bytes
+                pop     hl
+; [108]     
+; [109]     Total := Total + 1;
+                ld      hl,global83     ; Get global Total
+                push    hl
+                ld      hl,global83     ; Get global Total
+                ld      de,(hl)
+                push    de
+                ld      de,1            ; Literal 1
+                pop     hl
+                add     hl,de
+                ld      de,hl
+                pop     hl
+                ld      (hl),de
+; [110]   end;
+                jp      while95
+false96:
+; [111] 
+; [112]   Close(T);
+                ld      de,ix
+                ld      hl,-429
+                add     hl,de
+                push    hl
+                call    proc77
+; Cleanup 2 bytes
+                pop     hl
+; [113] 
+; [114]   WriteLn(Total, ' monkeys, factor is ', Factor:0:0);
+                ld      hl,global83     ; Get global Total
+                ld      de,(hl)
+                ld      hl,de
+                call    __putn
+                ld      hl,string102
+                call    __puts
+                ld      hl,global82     ; Get global Factor
+                call    __loadfp
+                pushfp
+                ld      de,0            ; Literal 0
+                push    de
+                ld      de,0            ; Literal 0
+                ld      bc,de
+                pop     de
+                exx
+                popfp
+                call    __putf_fix
+                call    __newline
+; [115]   WriteLn;
+                call    __newline
+; [116] end;
+exit93:         ld      sp,ix           ; Epilogue
+                pop     hl
+                ld      (display+4),hl
+                pop     ix
+                ret
+; [117] 
+; [118] procedure Dump;
+; 
+; [119] var
+; [120]   I, J: Integer;
+; [121] begin
+; var I(-2), J(-4)
+; 
+proc103:        push    ix              ; Prologue
+                ld      hl,(display+4)
+                push    hl
+                ld      ix,0
+                add     ix,sp
+                ld      (display+4),ix
+                ld      hl,-4
+                add     hl,sp
+                ld      sp,hl
+; [122]   for I := 0 to Total - 1 do
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                ld      (hl),de
+                ld      hl,global83     ; Get global Total
+                ld      de,(hl)
+                push    de
+                ld      de,1            ; Literal 1
+                pop     hl
+                xor     a
+                sbc     hl,de
+                ld      de,hl
+                push    de
+                push    de
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                pop     hl
+                call    __int16_geq
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,forbreak106
+forloop105:
+; [123]     with Monkeys[I] do
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+; [124]     begin
+; [125]       WriteLn('--- Monkey ', I, ' ---');
+                ld      hl,string108
+                call    __puts
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                call    __putn
+                ld      hl,string109
+                call    __puts
+                call    __newline
+; [126]       WriteLn('  Activity: ', Monkeys[I].Activity:0:0);
+                ld      hl,string110
+                call    __puts
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,403          ; Literal 403
+                pop     hl
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,0            ; Literal 0
+                push    de
+                ld      de,0            ; Literal 0
+                ld      bc,de
+                pop     de
+                exx
+                popfp
+                call    __putf_fix
+                call    __newline
+; [127]       WriteLn('  (new=old ', Monkeys[I].OpType, Monkeys[I].OpArg:0:0, ', test=', Monkeys[I].Test:0:0, ', true=', Monkeys[I].IfTrue, ', false=', Monkeys[I].IfFalse);
+                ld      hl,string111
+                call    __puts
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,386          ; Literal 386
+                pop     hl
+                add     hl,de
+                ld      d,0
+                ld      e,(hl)
+                ld      hl,de
+                ld      a,l
+                call    __putc
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,387          ; Literal 387
+                pop     hl
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,0            ; Literal 0
+                push    de
+                ld      de,0            ; Literal 0
+                ld      bc,de
+                pop     de
+                exx
+                popfp
+                call    __putf_fix
+                ld      hl,string112
+                call    __puts
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,393          ; Literal 393
+                pop     hl
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,0            ; Literal 0
+                push    de
+                ld      de,0            ; Literal 0
+                ld      bc,de
+                pop     de
+                exx
+                popfp
+                call    __putf_fix
+                ld      hl,string113
+                call    __puts
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,399          ; Literal 399
+                pop     hl
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                call    __putn
+                ld      hl,string114
+                call    __puts
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,401          ; Literal 401
+                pop     hl
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                call    __putn
+                call    __newline
+; [128]       Write('  Items: ', Monkeys[I].Count, ' [');
+                ld      hl,string115
+                call    __puts
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,384          ; Literal 384
+                pop     hl
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                call    __putn
+                ld      hl,string116
+                call    __puts
+; [129]       for J := 0 to Monkeys[I].Count - 1 do Write(Monkeys[I].Items[J]:0:0, ' ');
+                ld      de,ix
+                ld      hl,-4
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                ld      (hl),de
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,384          ; Literal 384
+                pop     hl
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,1            ; Literal 1
+                pop     hl
+                xor     a
+                sbc     hl,de
+                ld      de,hl
+                push    de
+                push    de
+                ld      de,ix
+                ld      hl,-4
+                add     hl,de
+                ld      de,(hl)
+                pop     hl
+                call    __int16_geq
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,forbreak118
+forloop117:
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-4
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,6            ; Literal 6
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,0            ; Literal 0
+                push    de
+                ld      de,0            ; Literal 0
+                ld      bc,de
+                pop     de
+                exx
+                popfp
+                call    __putf_fix
+                ld      de,32           ; Literal 32
+                ld      hl,de
+                ld      a,l
+                call    __putc
+fornext119:
+                pop     de              ; Dup and check limit
+                push    de
+                push    de
+                ld      de,ix
+                ld      hl,-4
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                pop     de
+                call    __int16_lt
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,forbreak118
+                ld      de,ix
+                ld      hl,-4
+                add     hl,de
+                ld      de,(hl)
+                inc     de
+                ld      (hl),de
+                jp      forloop117
+forbreak118:    pop     de              ; Cleanup limit
+; [130]       WriteLn(']');
+                ld      de,93           ; Literal 93
+                ld      hl,de
+                ld      a,l
+                call    __putc
+                call    __newline
+; [131]       WriteLn;
+                call    __newline
+; [132]     end;
+                pop     bc
+fornext107:
+                pop     de              ; Dup and check limit
+                push    de
+                push    de
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                pop     de
+                call    __int16_lt
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,forbreak106
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                inc     de
+                ld      (hl),de
+                jp      forloop105
+forbreak106:    pop     de              ; Cleanup limit
+; [133] end;
+exit104:        ld      sp,ix           ; Epilogue
+                pop     hl
+                ld      (display+4),hl
+                pop     ix
+                ret
+; [134] 
+; [135] (*
+; [136] unsigned int multMod(unsigned int a, unsigned int b, unsigned int M) {
+; [137]     const unsigned int k = 0xffff;
+; [138]     if (a <= 1 || b <= 1 || (a <= k && b <= k)) {
+; [139]         return (a * b) % M;
+; [140]     }
+; [141]     assert(a < M && b < M);
+; [142]     printf("multMod(%u, %u, %u)\n", a, b, M);
+; [143]     unsigned int divisor = 0xffffffff / M;
+; [144]     assert(divisor > 1);
+; [145]     unsigned int partA = a / divisor;
+; [146]     unsigned int partMult = multMod(partA, b, M);
+; [147]     return ((partMult*divisor % M) + ((b * (a % divisor)) % M)) % M;
+; [148] }
+; [149] *)
+; [150] 
+; [151] function MultMod(A, B, M: Real): Real;
+; 
+; [152] var
+; [153]   K, Divisor, PartA, PartMult: Real;
+; [154] begin
+; var MultMod(+24), A(+18), B(+12), M(+6), K(-6), Divisor(-12), PartA(-18), PartMult(-24)
+; 
+func120:        push    ix              ; Prologue
+                ld      hl,(display+4)
+                push    hl
+                ld      ix,0
+                add     ix,sp
+                ld      (display+4),ix
+                ld      hl,-24
+                add     hl,sp
+                ld      sp,hl
+; [155]   K := 65535.0;                                     (* 100000.0 instead? *)
+                ld      de,ix
+                ld      hl,-6
+                add     hl,de
+                push    hl
+                constfp string122
+                exx
+                pop     hl
+                call    __storefp
+; [156] 
+; [157]   if (A <= 1) or (B <= 1) or ((A <= K) and (B <= K)) then
+                ld      de,ix
+                ld      hl,18
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,1            ; Literal 1
+                ld      hl,de
+                call    FLOAT
+                exx
+                popfp
+                call    __fltleq
+                push    de
+                ld      de,ix
+                ld      hl,12
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,1            ; Literal 1
+                ld      hl,de
+                call    FLOAT
+                exx
+                popfp
+                call    __fltleq
+                pop     hl
+                ld      a,l
+                or      e
+                ld      l,a
+                push    hl
+                ld      de,ix
+                ld      hl,18
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,ix
+                ld      hl,-6
+                add     hl,de
+                call    __loadfp
+                exx
+                popfp
+                call    __fltleq
+                push    de
+                ld      de,ix
+                ld      hl,12
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,ix
+                ld      hl,-6
+                add     hl,de
+                call    __loadfp
+                exx
+                popfp
+                call    __fltleq
+                pop     hl
+                ld      a,l
+                and     e
+                ld      l,a
+                ld      de,hl
+                pop     hl
+                ld      a,l
+                or      e
+                ld      l,a
+                push    hl
+; [158]     MultMod := (A * B) mod M
+                pop     hl
+                bit     0,l
+                jp      z,false123
+                ld      de,ix
+                ld      hl,24
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,18
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,ix
+                ld      hl,12
+                add     hl,de
+                call    __loadfp
+                exx
+                popfp
+                call    FPMUL
+                pushfp
+; [159]   else
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                call    __loadfp
+                exx
+                popfp
+                call    MOD
+                exx
+                pop     hl
+                call    __storefp
+                jp      endif124
+false123:
+; [160]   begin
+; [161]     Assert((A < M) and (B < M));
+                ld      de,ix
+                ld      hl,18
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                call    __loadfp
+                exx
+                popfp
+                call    __fltlt
+                push    de
+                ld      de,ix
+                ld      hl,12
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                call    __loadfp
+                exx
+                popfp
+                call    __fltlt
+                pop     hl
+                ld      a,l
+                and     e
+                ld      l,a
+                push    hl
+                pop     bc
+                ld      hl, string125
+                ld      de, 162
+                call    __assert
+; [162]     WriteLn('MultMod(', A:0:0, ', ', B:0:0, ', ', M:0:0, ')');
+                ld      hl,string126
+                call    __puts
+                ld      de,ix
+                ld      hl,18
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,0            ; Literal 0
+                push    de
+                ld      de,0            ; Literal 0
+                ld      bc,de
+                pop     de
+                exx
+                popfp
+                call    __putf_fix
+                ld      hl,string127
+                call    __puts
+                ld      de,ix
+                ld      hl,12
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,0            ; Literal 0
+                push    de
+                ld      de,0            ; Literal 0
+                ld      bc,de
+                pop     de
+                exx
+                popfp
+                call    __putf_fix
+                ld      hl,string127
+                call    __puts
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,0            ; Literal 0
+                push    de
+                ld      de,0            ; Literal 0
+                ld      bc,de
+                pop     de
+                exx
+                popfp
+                call    __putf_fix
+                ld      de,41           ; Literal 41
+                ld      hl,de
+                ld      a,l
+                call    __putc
+                call    __newline
+; [163]     Divisor := Int(4294967295.0 / M);               (* 10000000000.0 instead? *)
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                push    hl
+                constfp string128
+                pushfp
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                call    __loadfp
+                exx
+                popfp
+                call    FPDIV
+                call    INT
+                exx
+                pop     hl
+                call    __storefp
+; [164]     Assert(Divisor > 1.0);
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                call    __loadfp
+                pushfp
+                constfp string129
+                exx
+                popfp
+                call    __fltleq
+                ld      hl,de
+                ld      a,1
+                xor     l
+                ld      l,a
+                push    hl
+                pop     bc
+                ld      hl, string125
+                ld      de, 165
+                call    __assert
+; [165]     PartA := Int(A / Divisor);
+                ld      de,ix
+                ld      hl,-18
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,18
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                call    __loadfp
+                exx
+                popfp
+                call    FPDIV
+                call    INT
+                exx
+                pop     hl
+                call    __storefp
+; [166]     PartMult := MultMod(PartA, B, M);
+                ld      de,ix
+                ld      hl,-24
+                add     hl,de
+                push    hl
+                push    hl
+                push    hl
+                push    hl
+                ld      de,ix
+                ld      hl,-18
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,ix
+                ld      hl,12
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                call    __loadfp
+                pushfp
+                call    func120
+; Cleanup 6 bytes
+                pop     hl
+                pop     hl
+                pop     hl
+; Cleanup 6 bytes
+                pop     hl
+                pop     hl
+                pop     hl
+; Cleanup 6 bytes
+                pop     hl
+                pop     hl
+                pop     hl
+                popfp
+                exx
+                pop     hl
+                call    __storefp
+; [167]     MultMod := ((PartMult * Divisor mod M) + ((B * (A mod Divisor)) mod M)) mod M;
+                ld      de,ix
+                ld      hl,24
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-24
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                call    __loadfp
+                exx
+                popfp
+                call    MOD
+                exx
+                popfp
+                call    FPMUL
+                pushfp
+                ld      de,ix
+                ld      hl,12
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,ix
+                ld      hl,18
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                call    __loadfp
+                exx
+                popfp
+                call    MOD
+                exx
+                popfp
+                call    FPMUL
+                pushfp
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                call    __loadfp
+                exx
+                popfp
+                call    MOD
+                exx
+                popfp
+                call    FPADD
+                pushfp
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                call    __loadfp
+                exx
+                popfp
+                call    MOD
+                exx
+                pop     hl
+                call    __storefp
+; [168]   end;
+endif124:
+; [169] end;
+exit121:        ld      sp,ix           ; Epilogue
+                pop     hl
+                ld      (display+4),hl
+                pop     ix
+                ret
+; [170] 
+; [171] procedure Simulate(Part: Integer);
+; 
+; [172] var
+; [173]   I, J, K: Integer;
+; [174]   R: Real;
+; [175] begin
+; var Part(+6), I(-2), J(-4), K(-6), R(-12)
+; 
+proc130:        push    ix              ; Prologue
+                ld      hl,(display+4)
+                push    hl
+                ld      ix,0
+                add     ix,sp
+                ld      (display+4),ix
+                ld      hl,-12
+                add     hl,sp
+                ld      sp,hl
+; [176]   for I := 0 to Total - 1 do
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                push    hl
+                ld      de,0            ; Literal 0
+                pop     hl
+                ld      (hl),de
+                ld      hl,global83     ; Get global Total
+                ld      de,(hl)
+                push    de
+                ld      de,1            ; Literal 1
+                pop     hl
+                xor     a
+                sbc     hl,de
+                ld      de,hl
+                push    de
+                push    de
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                pop     hl
+                call    __int16_geq
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,forbreak133
+forloop132:
+; [177]   begin
+; [178]     while not IsEmpty(Monkeys[I]) do
+while135:
+                push    hl
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                call    func90
+; Cleanup 2 bytes
+                pop     hl
+                pop     hl              ; Not
+                ld      a,1
+                xor     l
+                ld      l,a
+                push    hl
+; [179]     begin
+                pop     hl
+                bit     0,l
+                jp      z,false136
+; [180]       R := Pop(Monkeys[I]);
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                push    hl
+                push    hl
+                push    hl
+                push    hl
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                call    func88
+; Cleanup 2 bytes
+                pop     hl
+                popfp
+                exx
+                pop     hl
+                call    __storefp
+; [181] 
+; [182]       if Monkeys[I].OpType = '+' then
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,386          ; Literal 386
+                pop     hl
+                add     hl,de
+                ld      d,0
+                ld      e,(hl)
+                push    de
+                ld      de,43           ; Literal 43
+                pop     hl
+                call    __int16_eq
+                ld      h,0
+                ld      l,a
+                push    hl
+; [183]       begin
+                pop     hl
+                bit     0,l
+                jp      z,false137
+; [184]         if Monkeys[I].OpArg = -1 then 
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,387          ; Literal 387
+                pop     hl
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,1            ; Literal 1
+                ld      hl,0
+                xor     a
+                sbc     hl,de
+                call    FLOAT
+                exx
+                popfp
+                call    __flteq
+                push    de
+; [185]           R := R + R
+                pop     hl
+                bit     0,l
+                jp      z,false138
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                call    __loadfp
+                pushfp
+; [186]         else
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                call    __loadfp
+                exx
+                popfp
+                call    FPADD
+                exx
+                pop     hl
+                call    __storefp
+                jp      endif139
+false138:
+; [187]           R := R + Monkeys[I].OpArg;
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,387          ; Literal 387
+                pop     hl
+                add     hl,de
+                call    __loadfp
+                exx
+                popfp
+                call    FPADD
+                exx
+                pop     hl
+                call    __storefp
+endif139:
+; [188]       end
+; [189]       else if Monkeys[I].OpType = '*' then
+                jp      endif140
+false137:
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,386          ; Literal 386
+                pop     hl
+                add     hl,de
+                ld      d,0
+                ld      e,(hl)
+                push    de
+                ld      de,42           ; Literal 42
+                pop     hl
+                call    __int16_eq
+                ld      h,0
+                ld      l,a
+                push    hl
+; [190]       begin
+                pop     hl
+                bit     0,l
+                jp      z,false141
+; [191]         if Part = 1 then
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,1            ; Literal 1
+                pop     hl
+                call    __int16_eq
+                ld      h,0
+                ld      l,a
+                push    hl
+; [192]         begin
+                pop     hl
+                bit     0,l
+                jp      z,false142
+; [193]           if Monkeys[I].OpArg = -1 then 
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,387          ; Literal 387
+                pop     hl
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,1            ; Literal 1
+                ld      hl,0
+                xor     a
+                sbc     hl,de
+                call    FLOAT
+                exx
+                popfp
+                call    __flteq
+                push    de
+; [194]             R := R * R
+                pop     hl
+                bit     0,l
+                jp      z,false143
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                call    __loadfp
+                pushfp
+; [195]           else
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                call    __loadfp
+                exx
+                popfp
+                call    FPMUL
+                exx
+                pop     hl
+                call    __storefp
+                jp      endif144
+false143:
+; [196]             R := R * Monkeys[I].OpArg;
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,387          ; Literal 387
+                pop     hl
+                add     hl,de
+                call    __loadfp
+                exx
+                popfp
+                call    FPMUL
+                exx
+                pop     hl
+                call    __storefp
+endif144:
+; [197]         end
+; [198]         else
+                jp      endif145
+false142:
+; [199]         begin
+; [200]           if Monkeys[I].OpArg = -1 then 
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,387          ; Literal 387
+                pop     hl
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,1            ; Literal 1
+                ld      hl,0
+                xor     a
+                sbc     hl,de
+                call    FLOAT
+                exx
+                popfp
+                call    __flteq
+                push    de
+; [201]             R := MultMod(R, R, Factor)
+                pop     hl
+                bit     0,l
+                jp      z,false146
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                push    hl
+                push    hl
+                push    hl
+                push    hl
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      hl,global82     ; Get global Factor
+                call    __loadfp
+                pushfp
+; [202]           else
+                call    func120
+; Cleanup 6 bytes
+                pop     hl
+                pop     hl
+                pop     hl
+; Cleanup 6 bytes
+                pop     hl
+                pop     hl
+                pop     hl
+; Cleanup 6 bytes
+                pop     hl
+                pop     hl
+                pop     hl
+                popfp
+                exx
+                pop     hl
+                call    __storefp
+                jp      endif147
+false146:
+; [203]             R := MultMod(R, Monkeys[I].OpArg, Factor);
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                push    hl
+                push    hl
+                push    hl
+                push    hl
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,387          ; Literal 387
+                pop     hl
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      hl,global82     ; Get global Factor
+                call    __loadfp
+                pushfp
+                call    func120
+; Cleanup 6 bytes
+                pop     hl
+                pop     hl
+                pop     hl
+; Cleanup 6 bytes
+                pop     hl
+                pop     hl
+                pop     hl
+; Cleanup 6 bytes
+                pop     hl
+                pop     hl
+                pop     hl
+                popfp
+                exx
+                pop     hl
+                call    __storefp
+endif147:
+; [204]         end
+; [205]       end
+endif145:
+; [206]       else WriteLn('Invalid OpType ', Monkeys[I].OpType);
+                jp      endif148
+false141:
+                ld      hl,string149
+                call    __puts
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,386          ; Literal 386
+                pop     hl
+                add     hl,de
+                ld      d,0
+                ld      e,(hl)
+                ld      hl,de
+                ld      a,l
+                call    __putc
+                call    __newline
+endif148:
+endif140:
+; [207] 
+; [208]       if Part = 1 then
+                ld      de,ix
+                ld      hl,6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,1            ; Literal 1
+                pop     hl
+                call    __int16_eq
+                ld      h,0
+                ld      l,a
+                push    hl
+; [209]         R := Int(R / 3)
+                pop     hl
+                bit     0,l
+                jp      z,false150
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      de,3            ; Literal 3
+                ld      hl,de
+                call    FLOAT
+                exx
+                popfp
+                call    FPDIV
+                pushfp
+; [210]       else
+                popfp
+                call    INT
+                exx
+                pop     hl
+                call    __storefp
+                jp      endif151
+false150:
+; [211]         R := R mod Factor;
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      hl,global82     ; Get global Factor
+                call    __loadfp
+                exx
+                popfp
+                call    MOD
+                exx
+                pop     hl
+                call    __storefp
+endif151:
+; [212] 
+; [213]       if R mod Monkeys[I].Test = 0 then
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                call    __loadfp
+                pushfp
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,393          ; Literal 393
+                pop     hl
+                add     hl,de
+                call    __loadfp
+                exx
+                popfp
+                call    MOD
+                pushfp
+                ld      de,0            ; Literal 0
+                ld      hl,de
+                call    FLOAT
+                exx
+                popfp
+                call    __flteq
+                push    de
+; [214]         K := Monkeys[I].IfTrue
+                pop     hl
+                bit     0,l
+                jp      z,false152
+                ld      de,ix
+                ld      hl,-6
+                add     hl,de
+                push    hl
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,399          ; Literal 399
+                pop     hl
+                add     hl,de
+                push    hl
+; [215]       else
+                pop     hl
+                ld      de,(hl)
+                pop     hl
+                ld      (hl),de
+                jp      endif153
+false152:
+; [216]         K := Monkeys[I].IfFalse;
+                ld      de,ix
+                ld      hl,-6
+                add     hl,de
+                push    hl
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,401          ; Literal 401
+                pop     hl
+                add     hl,de
+                ld      de,(hl)
+                pop     hl
+                ld      (hl),de
+endif153:
+; [217] 
+; [218]       Push(Monkeys[K], R);
+                ld      hl,global81     ; Get global Monkeys
+                push    hl
+                ld      de,ix
+                ld      hl,-6
+                add     hl,de
+                ld      de,(hl)
+                push    de
+                ld      de,409          ; Literal 409
+                pop     hl
+                call    __mul16         ; Mul
+                ld      de,hl
+                pop     hl
+                add     hl,de
+                push    hl
+                ld      de,ix
+                ld      hl,-12
+                add     hl,de
+                call    __loadfp
+                pushfp
+                call    proc86
+; Cleanup 2 bytes
+                pop     hl
+; Cleanup 6 bytes
+                pop     hl
+                pop     hl
+                pop     hl
+; [219]     end;
+                jp      while135
+false136:
+; [220]   end;
+fornext134:
+                pop     de              ; Dup and check limit
+                push    de
+                push    de
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                ld      hl,de
+                pop     de
+                call    __int16_lt
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,forbreak133
+                ld      de,ix
+                ld      hl,-2
+                add     hl,de
+                ld      de,(hl)
+                inc     de
+                ld      (hl),de
+                jp      forloop132
+forbreak133:    pop     de              ; Cleanup limit
+; [221] end;
+exit131:        ld      sp,ix           ; Epilogue
+                pop     hl
+                ld      (display+4),hl
+                pop     ix
+                ret
+; [222] 
+; [223] var
+; 
+; [224]   I: Integer;
+global154:      ds      2               ; Global I
+; [225] 
+; [226] begin
+; var Mem(0), HeapPtr(0), AssertPassed(0), AssertFailed(0), Inspect(0), Monkeys(0), Factor(0), Total(0), I(0)
+; 
+main:           call    __init
+                ld      ix,0
+                add     ix,sp
+; [227]   Load;
+                call    proc92
+; [228]   
+; [229]   Dump;
+                call    proc103
+; [230] 
+; [231]   for I := 1 to 10000 do
+                ld      hl,global154    ; Get global I
+                push    hl
+                ld      de,1            ; Literal 1
+                pop     hl
+                ld      (hl),de
+                ld      de,10000        ; Literal 10000
+                push    de
+                push    de
+                ld      hl,global154    ; Get global I
+                ld      de,(hl)
+                pop     hl
+                call    __int16_geq
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,forbreak157
+forloop156:
+; [232]   begin
+; [233]     (* WriteLn('Round ', I); *)
+; [234]     Simulate(2);
+                ld      de,2            ; Literal 2
+                push    de
+                call    proc130
+; Cleanup 2 bytes
+                pop     hl
+; [235] 
+; [236]     if I = Inspect then
+                ld      hl,global154    ; Get global I
+                ld      de,(hl)
+                push    de
+                ld      hl,const80      ; Get global Inspect
+                ld      de,(hl)
+                pop     hl
+                call    __int16_eq
+                ld      h,0
+                ld      l,a
+                push    hl
+; [237]     begin
+                pop     hl
+                bit     0,l
+                jp      z,false159
+; [238]       WriteLn('After ', I, ' rounds');
+                ld      hl,string160
+                call    __puts
+                ld      hl,global154    ; Get global I
+                ld      de,(hl)
+                ld      hl,de
+                call    __putn
+                ld      hl,string161
+                call    __puts
+                call    __newline
+; [239]       Dump;
+                call    proc103
+; [240]       if Inspect = 1 then Inspect := 20 else if Inspect = 20 then Inspect := 1000 else Inspect := Inspect + 1000;
+                ld      hl,const80      ; Get global Inspect
+                ld      de,(hl)
+                push    de
+                ld      de,1            ; Literal 1
+                pop     hl
+                call    __int16_eq
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,false162
+                ld      hl,const80      ; Get global Inspect
+                push    hl
+                ld      de,20           ; Literal 20
+                pop     hl
+                ld      (hl),de
+                jp      endif163
+false162:
+                ld      hl,const80      ; Get global Inspect
+                ld      de,(hl)
+                push    de
+                ld      de,20           ; Literal 20
+                pop     hl
+                call    __int16_eq
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,false164
+                ld      hl,const80      ; Get global Inspect
+                push    hl
+                ld      de,1000         ; Literal 1000
+                pop     hl
+                ld      (hl),de
+                jp      endif165
+false164:
+                ld      hl,const80      ; Get global Inspect
+                push    hl
+                ld      hl,const80      ; Get global Inspect
+                ld      de,(hl)
+                push    de
+                ld      de,1000         ; Literal 1000
+                pop     hl
+                add     hl,de
+                ld      de,hl
+                pop     hl
+                ld      (hl),de
+endif165:
+endif163:
+; [241]     end;
+false159:
+; [242]   end;
+fornext158:
+                pop     de              ; Dup and check limit
+                push    de
+                push    de
+                ld      hl,global154    ; Get global I
+                ld      de,(hl)
+                ld      hl,de
+                pop     de
+                call    __int16_lt
+                ld      h,0
+                ld      l,a
+                bit     0,l
+                jp      z,forbreak157
+                ld      hl,global154    ; Get global I
+                ld      de,(hl)
+                inc     de
+                ld      (hl),de
+                jp      forloop156
+forbreak157:    pop     de              ; Cleanup limit
+; [243] 
+; [244]   WriteLn;
+                call    __newline
+; [245] 
+; [246]   Dump;
+                call    proc103
+; [247] end.
+exit155:        call    __done
+                ret
+; 
+string58:       db      0
+; 
+string94:       db      12,"EXAMPLE .TXT"
+; 
+string99:       db      3,"old"
+; 
+string102:      db      20," monkeys, factor is "
+; 
+string108:      db      11,"--- Monkey "
+; 
+string109:      db      4," ---"
+; 
+string110:      db      12,"  Activity: "
+; 
+string111:      db      11,"  (new=old "
+; 
+string112:      db      7,", test="
+; 
+string113:      db      7,", true="
+; 
+string114:      db      8,", false="
+; 
+string115:      db      9,"  Items: "
+; 
+string116:      db      2," ["
+; 
+string122:      db      8,"65535.0 "
+; 
+string125:      db      10,"monkey.pas"
+; 
+string126:      db      8,"MultMod("
+; 
+string127:      db      2,", "
+; 
+string128:      db      13,"4294967295.0 "
+; 
+string129:      db      4,"1.0 "
+; 
+string149:      db      15,"Invalid OpType "
+; 
+string160:      db      6,"After "
+; 
+string161:      db      7," rounds"
+; 
+display:        ds      32              ; Display
+; 
+eof:                                    ; End of file
+; 
+; HEAP:
+; 
+; end
+; 
