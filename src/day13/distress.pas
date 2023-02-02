@@ -185,7 +185,9 @@ begin
       Count := Count + Index;
     end
     else
-      Write('  ',Index:3, '   '); 
+      Write('  ',Index:3, '   ');
+
+    if Index mod 10 = 0 then WriteLn;
 
     if CompareNode(N, Divider1) < 0 then
     begin
@@ -211,7 +213,6 @@ begin
 
   Close(T);
 
-  WriteLn;
   WriteLn;
   WriteLn('Part 1: Sum of right-order packet indices is ', Count:5, '.');
   WriteLn('Part 2: Product of divider packet indices is ', Before1 * Before2:5, '.');
