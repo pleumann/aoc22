@@ -8,7 +8,7 @@ import java.util.HashSet;
 /**
  * Day 19 "Not Enoguh Resources" parts 1 and 2.
  */
-public class Puzzle {
+public class PuzzleBfs {
 
     /**
      * Resource type comstants.
@@ -256,10 +256,10 @@ public class Puzzle {
      */
     public static void main(String[] args) throws IOException {
         System.out.println();
-        System.out.println("*** AoC 2022.19 Not Enough Materials ***");
+        System.out.println("*** AoC 2022.19 Not Enough Minerals ***");
         System.out.println();
         
-        new Puzzle().process(new BufferedReader(new FileReader(args[0])));
+        new PuzzleBfs().process(new BufferedReader(new FileReader(args[0])));
         
         System.out.println();
     }
