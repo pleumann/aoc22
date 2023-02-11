@@ -67,151 +67,133 @@ begin
   TimeToWait := T;
 end;
     
-procedure Build(What: Resource); register;
-inline(
-  $eb /             (* ex de,hl     *)
+procedure Build(What: Resource);
+begin
+  (*
+  Dec(Stock[Ore], Cost[What, Ore]);
+  Dec(Stock[Clay], Cost[What, Clay]);
+  Dec(Stock[Obsidian], Cost[What, Obsidian]);
+  Inc(Robots[What]);
+  *)
 
-  $21 / Robots /    (* ld hl,Robots *)
-  $19 /             (* add hl,de    *)
-  $34 /             (* inc (hl)     *)
+  inline(
+    $06 / $00 /         (* ld b,0       *)
+    $dd / $4e / $06 /   (* ld c,(ix+6)  *)
+    $21 / Robots /      (* ld hl,Robots *)
+    $09 /               (* add hl,bc    *)
+    $34 /               (* inc (hl)     *)
+    $21 / Cost /        (* ld hl,Cost   *)
+    $cb / $21 /         (* sla c        *)
+    $cb / $21 /         (* sla c        *)
+    $09 /               (* add hl,bc    *)
+    $11 / Stock /       (* ld de,Stock  *)
+    $06 / $03 /         (* ld b,3       *)
+                        (* @l1:         *)
+    $1a /               (* ld a,(de)    *)
+    $96 /               (* sub (hl)     *)
+    $12 /               (* ld (de),a    *)
+    $23 /               (* inc hl       *)
+    $13 /               (* inc de       *)
+    $10 / $f9           (* djnz l1      *)
+  );
+end;
 
-  $21 / Cost /      (* ld hl,Cost   *)
-  $cb / $23 /       (* sla e        *)
-  $cb / $23 /       (* sla e        *)
-  $19 /             (* add hl,de    *)
-  $11 / Stock /     (* ld de,Stock  *)
+procedure Recycle(What: Resource);
+begin
+  (*
+  Dec(Robots[What]);
+  Inc(Stock[Ore], Cost[What, Ore]);
+  Inc(Stock[Clay], Cost[What, Clay]);
+  Inc(Stock[Obsidian], Cost[What, Obsidian]);
+  *)
 
-  $1a /             (* ld a,(de)    *)
-  $96 /             (* sub (hl)     *)
-  $12 /             (* ld (de),a    *)
+  inline(
+    $06 / $00 /         (* ld b,0       *)
+    $dd / $4e / $06 /   (* ld c,(ix+6)  *)
+    $21 / Robots /      (* ld hl,Robots *)
+    $09 /               (* add hl,bc    *)
+    $35 /               (* dec (hl)     *)
+    $21 / Cost /        (* ld hl,Cost   *)
+    $cb / $21 /         (* sla c        *)
+    $cb / $21 /         (* sla c        *)
+    $09 /               (* add hl,bc    *)
+    $11 / Stock /       (* ld de,Stock  *)
+    $06 / $03 /         (* ld b,3       *)
+                        (* @l1:         *)
+    $1a /               (* ld a,(de)    *)
+    $86 /               (* add (hl)     *)
+    $12 /               (* ld (de),a    *)
+    $23 /               (* inc hl       *)
+    $13 /               (* inc de       *)
+    $10 / $f9           (* djnz l1      *)
+  );
+end;
 
-  $23 /             (* inc hl       *)
-  $13 /             (* inc de       *)
+procedure Collect(N: Byte);
+begin
+  (*
+  while N > 0 do
+  begin  
+    Inc(Stock[Ore], Robots[Ore]);
+    Inc(Stock[Clay], Robots[Clay]);
+    Inc(Stock[Obsidian], Robots[Obsidian]);
+    Inc(Stock[Geode], Robots[Geode]);
+  *)
 
-  $1a /             (* ld a,(de)    *)
-  $96 /             (* sub (hl)     *)
-  $12 /             (* ld (de),a    *)
+  inline(
+    $dd / $4e / $06 /   (* ld c,(ix+6)  *)
+    $0c /               (* inc c        *)
+    $18 / $0f /         (* jr @l3       *)
+                        (* @l1:         *)
+    $21 / Robots /      (* ld hl,Robots *)
+    $11 / Stock /       (* ld de,Stock  *)
+    $06 / $04 /         (* ld b,4       *)
+                        (* @l2:         *)
+    $1a /               (* ld a,(de)    *)
+    $86 /               (* add (hl)     *)
+    $12 /               (* ld (de),a    *)
+    $23 /               (* inc hl       *)
+    $13 /               (* inc de       *)
+    $10 / $f9 /         (* djnz l2      *)
+                        (* @l3:         *)
+    $0d /               (* dec c        *)
+    $20 / $ee           (* jr nz,l1     *)
+  );
+end;
 
-  $23 /             (* inc hl       *)
-  $13 /             (* inc de       *)
+procedure Drop(N: Byte);
+begin
+  (*
+  while N > 0 do
+  begin
+    Dec(Stock[Ore], Robots[Ore]);
+    Dec(Stock[Clay], Robots[Clay]);
+    Dec(Stock[Obsidian], Robots[Obsidian]);
+    Dec(Stock[Geode], Robots[Geode]);
+    Dec(N);
+  end;
+  *)
 
-  $1a /             (* ld a,(de)    *)
-  $96 /             (* sub (hl)     *)
-  $12               (* ld (de),a    *)
-);
-
-procedure Recycle(What: Resource); register;
-inline(
-  $eb /             (* ex de,hl     *)
-
-  $21 / Robots /    (* ld hl,Robots *)
-  $19 /             (* add hl,de    *)
-  $35 /             (* dec (hl)     *)
-
-  $21 / Cost /      (* ld hl,Cost   *)
-  $cb / $23 /       (* sla e        *)
-  $cb / $23 /       (* sla e        *)
-  $19 /             (* add hl,de    *)
-  $11 / Stock /     (* ld de,Stock  *)
-
-  $1a /             (* ld a,(de)    *)
-  $86 /             (* add (hl)     *)
-  $12 /             (* ld (de),a    *)
-
-  $23 /             (* inc hl       *)
-  $13 /             (* inc de       *)
-
-  $1a /             (* ld a,(de)    *)
-  $86 /             (* add (hl)     *)
-  $12 /             (* ld (de),a    *)
-
-  $23 /             (* inc hl       *)
-  $13 /             (* inc de       *)
-
-  $1a /             (* ld a,(de)    *)
-  $86 /             (* add (hl)     *)
-  $12               (* ld (de),a    *)
-);
-
-procedure Collect(N: Byte); register;
-inline(
-  $af /             (* xor a        *)
-  $b5 /             (* or l         *)
-  $c8 /             (* ret z        *)
-  $47 /             (* ld b,a       *)
-
-                    (* @loop:       *)
-
-  $21 / Robots /    (* ld hl,Robots *)
-  $11 / Stock /     (* ld de,Stock  *)
-
-  $1a /             (* ld a,(de)    *)
-  $86 /             (* add (hl)     *)
-  $12 /             (* ld (de),a    *)
-
-  $23 /             (* inc hl       *)
-  $13 /             (* inc de       *)
-
-  $1a /             (* ld a,(de)    *)
-  $86 /             (* add (hl)     *)
-  $12 /             (* ld (de),a    *)
-
-  $23 /             (* inc hl       *)
-  $13 /             (* inc de       *)
-
-  $1a /             (* ld a,(de)    *)
-  $86 /             (* add (hl)     *)
-  $12 /             (* ld (de),a    *)
-
-  $23 /             (* inc hl       *)
-  $13 /             (* inc de       *)
-
-  $1a /             (* ld a,(de)    *)
-  $86 /             (* add (hl)     *)
-  $12 /             (* ld (de),a    *)
-
-  $10 / $e6         (* djnz loop    *)
-);
-
-procedure Drop(N: Byte); register;
-inline(
-  $af /             (* xor a        *)
-  $b5 /             (* or l         *)
-  $c8 /             (* ret z        *)
-  $47 /             (* ld b,a       *)
-
-                    (* @loop:       *)
-
-  $21 / Robots /    (* ld hl,Robots *)
-  $11 / Stock /     (* ld de,Stock  *)
-
-  $1a /             (* ld a,(de)    *)
-  $96 /             (* sub (hl)     *)
-  $12 /             (* ld (de),a    *)
-
-  $23 /             (* inc hl       *)
-  $13 /             (* inc de       *)
-
-  $1a /             (* ld a,(de)    *)
-  $96 /             (* sub (hl)     *)
-  $12 /             (* ld (de),a    *)
-
-  $23 /             (* inc hl       *)
-  $13 /             (* inc de       *)
-
-  $1a /             (* ld a,(de)    *)
-  $96 /             (* sub (hl)     *)
-  $12 /             (* ld (de),a    *)
-
-  $23 /             (* inc hl       *)
-  $13 /             (* inc de       *)
-
-  $1a /             (* ld a,(de)    *)
-  $96 /             (* sub (hl)     *)
-  $12 /             (* ld (de),a    *)
-
-  $10 / $e6         (* djnz loop    *)
-);
+  inline(
+    $dd / $4e / $06 /   (* ld c,(ix+6)  *)
+    $0c /               (* inc c        *)
+    $18 / $0f /         (* jr @l3       *)
+                        (* @l1:         *)
+    $21 / Robots /      (* ld hl,Robots *)
+    $11 / Stock /       (* ld de,Stock  *)
+    $06 / $04 /         (* ld b,4       *)
+                        (* @l2:         *)
+    $1a /               (* ld a,(de)    *)
+    $96 /               (* sub (hl)     *)
+    $12 /               (* ld (de),a    *)
+    $23 /               (* inc hl       *)
+    $13 /               (* inc de       *)
+    $10 / $f9 /         (* djnz l2      *)
+                        (* @l3:         *)
+    $0d /               (* dec c        *)
+    $20 / $ee           (* jr nz,l1     *)
+  );
+end;
 
 procedure Simulate(Rounds: Byte);
 var
@@ -374,8 +356,8 @@ begin
   for I := 1 to 15 do
   begin
     GotoXY(1, 4 + I);
-    Write('Blueprint ', I:2, ':                              ');
-    Write(' | ', 15 + I:2, ':                              ');
+    Write('Blueprint ', I:2, ':  0  0  0  0  0  0  0  0  0  0');
+    Write(' | ', 15 + I:2, ':  0  0  0  0  0  0  0  0  0  0');
   end;
 
   Num := 1;
