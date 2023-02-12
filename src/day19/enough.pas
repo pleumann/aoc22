@@ -3,22 +3,18 @@ program Enough;
 {$I /Users/joerg/Projekte/pl0/lib/Files.pas}
 
 const
-  Timeout = 13500;
+  Timeout = 10300;
 
 type
   Resource = (Ore, Clay, Obsidian, Geode);
-
+  TResourceArray = array[Resource] of Byte;
   TStringArray = array[0..9] of String[10];
 
 var
-  Cost: array[Resource, Resource] of Byte;
-
-  Stock, Robots, Limit: array[Resource] of Byte;
-
+  Stock, Robots, Limit: TResourceArray;
+  Cost: array[Resource] of TResourceArray;
   Best: array[0..32] of Byte;
-
   WatchDog, Num, Part1, Part2, I: Integer;
-
   T: Text;
 
 procedure Update(B: Boolean);
@@ -41,32 +37,42 @@ begin
   if I >= J then Max := I else Max := J;
 end;
 
-function TimeToWait(What: Resource): Integer;
-var
-  C, T, W: Integer;
-  R: Resource;
-begin
-  T := 0;
-  
-  for R := Ore to Obsidian do
-  begin
-    C := Cost[What][R] - Stock[R];
-    if C > 0 then
-    begin
-      W := Robots[R];
-      if W = 0 then
-      begin
-        TimeToWait := 99;
-        Exit;
-      end;
+function CanBuild(What: Resource): Boolean; register;
+inline(
+  $eb /             (* ex de,hl     *)
 
-      T := Max(T, (C + W - 1) / W);
-    end;
-  end;
+  $21 / Cost /      (* ld hl,Cost   *)
+  $cb / $23 /       (* sla e        *)
+  $cb / $23 /       (* sla e        *)
+  $19 /             (* add hl,de    *)
+  $11 / Stock /     (* ld de,Stock  *)
 
-  TimeToWait := T;
-end;
-    
+  $1a /             (* ld a,(de)    *)
+  $be /             (* cp (hl)      *)
+  $38 / $10 /       (* jr c,@Bail   *)
+
+  $23 /             (* inc hl       *)
+  $13 /             (* inc de       *)
+
+  $1a /             (* ld a,(de)    *)
+  $be /             (* cp (hl)      *)
+  $38 / $0a /       (* jr c,@Bail   *)
+
+  $23 /             (* inc hl       *)
+  $13 /             (* inc de       *)
+
+  $1a /             (* ld a,(de)    *)
+  $be /             (* cp (hl)      *)
+  $38 / $04 /       (* jr c,@Bail   *)
+
+  $21 / 01 / 00 /   (* ld hl,1      *)
+  $c9 /             (* ret          *)
+
+                    (* @Bail:       *)
+  $21 / $00 / $00   (* ld hl,0      *)
+                    (* ret          *)
+);
+
 procedure Build(What: Resource); register;
 inline(
   $eb /             (* ex de,hl     *)
@@ -98,21 +104,20 @@ inline(
   $1a /             (* ld a,(de)    *)
   $96 /             (* sub (hl)     *)
   $12               (* ld (de),a    *)
+                    (* ret          *)
 );
 
-procedure Recycle(What: Resource); register;
+procedure Collect; register;
 inline(
-  $eb /             (* ex de,hl     *)
-
   $21 / Robots /    (* ld hl,Robots *)
-  $19 /             (* add hl,de    *)
-  $35 /             (* dec (hl)     *)
-
-  $21 / Cost /      (* ld hl,Cost   *)
-  $cb / $23 /       (* sla e        *)
-  $cb / $23 /       (* sla e        *)
-  $19 /             (* add hl,de    *)
   $11 / Stock /     (* ld de,Stock  *)
+
+  $1a /             (* ld a,(de)    *)
+  $86 /             (* add (hl)     *)
+  $12 /             (* ld (de),a    *)
+
+  $23 /             (* inc hl       *)
+  $13 /             (* inc de       *)
 
   $1a /             (* ld a,(de)    *)
   $86 /             (* add (hl)     *)
@@ -131,91 +136,23 @@ inline(
   $1a /             (* ld a,(de)    *)
   $86 /             (* add (hl)     *)
   $12               (* ld (de),a    *)
+                    (* ret          *)
 );
 
-procedure Collect(N: Byte); register;
+procedure Move(var Src, Dst: TResourceArray); register;
 inline(
-  $af /             (* xor a        *)
-  $b5 /             (* or l         *)
-  $c8 /             (* ret z        *)
-  $47 /             (* ld b,a       *)
-
-                    (* @loop:       *)
-
-  $21 / Robots /    (* ld hl,Robots *)
-  $11 / Stock /     (* ld de,Stock  *)
-
-  $1a /             (* ld a,(de)    *)
-  $86 /             (* add (hl)     *)
-  $12 /             (* ld (de),a    *)
-
-  $23 /             (* inc hl       *)
-  $13 /             (* inc de       *)
-
-  $1a /             (* ld a,(de)    *)
-  $86 /             (* add (hl)     *)
-  $12 /             (* ld (de),a    *)
-
-  $23 /             (* inc hl       *)
-  $13 /             (* inc de       *)
-
-  $1a /             (* ld a,(de)    *)
-  $86 /             (* add (hl)     *)
-  $12 /             (* ld (de),a    *)
-
-  $23 /             (* inc hl       *)
-  $13 /             (* inc de       *)
-
-  $1a /             (* ld a,(de)    *)
-  $86 /             (* add (hl)     *)
-  $12 /             (* ld (de),a    *)
-
-  $10 / $e6         (* djnz loop    *)
-);
-
-procedure Drop(N: Byte); register;
-inline(
-  $af /             (* xor a        *)
-  $b5 /             (* or l         *)
-  $c8 /             (* ret z        *)
-  $47 /             (* ld b,a       *)
-
-                    (* @loop:       *)
-
-  $21 / Robots /    (* ld hl,Robots *)
-  $11 / Stock /     (* ld de,Stock  *)
-
-  $1a /             (* ld a,(de)    *)
-  $96 /             (* sub (hl)     *)
-  $12 /             (* ld (de),a    *)
-
-  $23 /             (* inc hl       *)
-  $13 /             (* inc de       *)
-
-  $1a /             (* ld a,(de)    *)
-  $96 /             (* sub (hl)     *)
-  $12 /             (* ld (de),a    *)
-
-  $23 /             (* inc hl       *)
-  $13 /             (* inc de       *)
-
-  $1a /             (* ld a,(de)    *)
-  $96 /             (* sub (hl)     *)
-  $12 /             (* ld (de),a    *)
-
-  $23 /             (* inc hl       *)
-  $13 /             (* inc de       *)
-
-  $1a /             (* ld a,(de)    *)
-  $96 /             (* sub (hl)     *)
-  $12 /             (* ld (de),a    *)
-
-  $10 / $e6         (* djnz loop    *)
+  $ed / $a0 /       (* ldi          *)
+  $ed / $a0 /       (* ldi          *)
+  $ed / $a0 /       (* ldi          *)
+  $ed / $a0         (* ldi          *)
+                    (* ret          *)
 );
 
 procedure Simulate(Rounds: Byte);
 var
-  Existing, Potential, NumGeodes, Time, I: Byte;
+  Existing, Potential, NumGeodes, Remaining: Byte;
+  SavedRobots, SavedStock: TResourceArray;
+  Possible: Boolean;
   R: Resource;
 begin
   NumGeodes := Stock[Geode];
@@ -246,22 +183,22 @@ begin
   begin
     if Robots[R] < Limit[R] then
     begin
-      Time := TimeToWait(R);
-      if Time < Rounds then         (* Can build in time, go ahead. *)
-      begin
-        Inc(Time);
-        Collect(Time);
-        Build(R);
-        Simulate(Rounds - Time);
-        Recycle(R);
-        Drop(Time);
-      end
-      else
-      begin
-        Collect(Rounds);            (* Can't build in time, just wait. *)
-        Simulate(0);
-        Drop(Rounds);
-      end;
+      Move(Robots, SavedRobots);
+      Move(Stock, SavedStock);
+
+      Remaining := Rounds;
+      Possible := False;
+      repeat
+        Possible := CanBuild(R);
+        Collect;
+        Dec(Remaining);
+      until Possible or (Remaining = 0);
+
+      if Possible then Build(R);
+      Simulate(Remaining);
+
+      Move(SavedRobots, Robots);
+      Move(SavedStock, Stock);
     end;
   end;
 end;
