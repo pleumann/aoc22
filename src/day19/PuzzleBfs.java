@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.HashSet;
 
 /**
- * Day 19 "Not Enoguh Resources" parts 1 and 2.
+ * Day 19 "Not Enoguh Minerals" parts 1 and 2. Awful original BFS solution. :-)
  */
 public class PuzzleBfs {
 

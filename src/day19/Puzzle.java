@@ -32,12 +32,12 @@ public class Puzzle {
         /**
          * Resource we have of each type.
          */
-        byte resources[] = new byte[4];
+        int resources[] = new int[4];
 
         /**
          * Robots we have of each type.
          */
-        byte robots[] = new byte[4];
+        int robots[] = new int[4];
 
         /**
          * Best total number of geodes we achieved at each round.
@@ -136,35 +136,26 @@ public class Puzzle {
         }
 
         /**
-         * Builds a robot of the given type.
+         * Copies an array.
          */
-        void undo(int what) {
-            if (what >= 0) {
-                for (int i = 0; i < 4; i++) {
-                    resources[i] += cost[what][i];
-                }
-
-                robots[what]--;
-            }
-
-            for (int i = 0; i < 4; i++) {
-                resources[i] -= robots[i];
-            }
+        void move(int[] src, int[] dst) {
+            System.arraycopy(src, 0, dst, 0, 4);
         }
 
         /**
          * Simulates the given number of rounds using a depth-first approach.
          */
         void simulate(int rounds) {
+            int[] savedRobots = new int[4];
+            int[] savedResources = new int[4];
+            
             int geodes = resources[GEODE];
 
             if (geodes > best[rounds]) {
                 System.out.println("New best " + geodes + " at round " + rounds + "!");
                 best[rounds] = geodes;
-            } else if (geodes < best[rounds]) {
-                return;
             }
-
+            
             if (rounds == 0) {
                 return;
             }
@@ -175,31 +166,29 @@ public class Puzzle {
                 return;
             }
 
-            if (canBuild(GEODE)) {
-                collect();
-                build(GEODE);
-                simulate(rounds - 1);
-                undo(GEODE);
-            } else {
-                for (int i = 0; i < 3; i++) {
-                    if (shouldBuild(i)) {
-                        if (canBuild(i)) {
-                            collect();
-                            build(i);
-                            simulate(rounds - 1);
-                            undo(i);
-                        }
+            for (int i = ORE; i <= GEODE; i++) {
+                if (shouldBuild(i)) {
+                    move(robots, savedRobots);
+                    move(resources, savedResources);
+                    
+                    int remaining = rounds;
+                    boolean possible = false;
+                    do {
+                        possible = canBuild(i);
+                        collect();
+                        remaining--;
+                    } while (!(possible || remaining == 0));
+                    
+                    if (possible) {
+                        build(i);
                     }
-                }
-
-                if (resources[0] < 5 && resources[1] < 13 && resources[2] < 10) {
-                    collect();
-                    simulate(rounds - 1);
-                    undo(-1);
+                    simulate(remaining);
+                    
+                    move(savedRobots, robots);
+                    move(savedResources, resources);
                 }
             }
-        }
-        
+        }   
     }
 
     /**

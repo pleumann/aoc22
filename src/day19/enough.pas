@@ -139,7 +139,7 @@ inline(
                     (* ret          *)
 );
 
-procedure Move(var Src, Dst: TResourceArray); register;
+procedure MoveFast(var Src, Dst: TResourceArray); register;
 inline(
   $ed / $a0 /       (* ldi          *)
   $ed / $a0 /       (* ldi          *)
@@ -183,8 +183,8 @@ begin
   begin
     if Robots[R] < Limit[R] then
     begin
-      Move(Robots, SavedRobots);
-      Move(Stock, SavedStock);
+      MoveFast(Robots, SavedRobots);
+      MoveFast(Stock, SavedStock);
 
       Remaining := Rounds;
       Possible := False;
@@ -197,8 +197,8 @@ begin
       if Possible then Build(R);
       Simulate(Remaining);
 
-      Move(SavedRobots, Robots);
-      Move(SavedStock, Stock);
+      MoveFast(SavedRobots, Robots);
+      MoveFast(SavedStock, Stock);
     end;
   end;
 end;
