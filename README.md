@@ -4,8 +4,9 @@ in two flavors: Java and Pascal.
 
 ## Java ##
 
-These are my original solutions from December 2022, all wrapped into a NetBeans project.
-After building, the typical way to run a certain puzzle is (from the project directory):
+These are my original Java solutions from December 2022, all wrapped into a
+[NetBeans](https://netbeans.apache.org) project. The typical way to run a certain
+puzzle is (from the project directory):
 ```
 java -cp dist/AdventOfCode22.jar day01.Puzzle src/day01/input.txt
 ```
@@ -17,7 +18,7 @@ per directory copy-pasted from the puzzle description.
 
 ## Pascal ##
 
-All days contain a solution in 
+In addition to the Java source all days contain a solution in 
 [Pascal](https://en.wikipedia.org/wiki/Pascal_(programming_language)) for 8-bit
 [CP/M](https://en.wikipedia.org/wiki/CP/M), as I'm working on a simple Pascal compiler
 for [Z80](https://en.wikipedia.org/wiki/Zilog_Z80) in my spare time. There is a
@@ -27,19 +28,22 @@ If you want to run them yourself and don't have real CP/M machine available, my
 recommended CP/M emulator is [tnylpo](https://gitlab.com/gbrein/tnylpo).
 
 Most Pascal solutions started out as straight ports of the Java ones after Advent of Code
-was already finished. Only some were done in December already and I did not necessarily do
-them "in order" (otherwise the big integer routines developed for day 21 would have seen
-more widespread use).
+was already finished. Only some were done in December 2022 already and I did not
+necessarily do the rest "in order" (otherwise the big integer routines developed for day
+21 would have seen more widespread use).
 
 In many cases the CPU (28 MHz!) and memory (64 kB!) limitations of the target system
-forced me to rethink my approach. A solution that would use several GB of memory was a
+forced me to rethink my approaches. A solution that would use several GB of memory was a
 clear no-go from the start. Regarding run-time, the rule-of-thumb I found was that a
 second in Java means a minute in tnylpo (both on my MacBook Air M1) and an hour on the
 ZX Spectrum Next (which, running at 28 MHz, is already quite fast compared to Z80 systems
-from the late 70s or early 80s that would often clock at 3.5 MHz). As a result, many
-Pascal solutions are actually much better (from an algorithmic perspective) than the
-original Java ones that "got me the stars".
+from the late 70s or early 80s that would often clock at 3.5 MHz).
 
-That is, for me, probably the most interesting takeaway of doing this exercise on 8-bit:
+So I had to optimize: Consider big-O, look for repetition patterns, use modulo arithmetic
+when numbers got too large, and in some cases even add some inline Z80 assembly. As a
+result, many Pascal solutions are actually much better (from an algorithmic perspective)
+than the original Java ones that "got me the stars".
+
+That is, for me, probably the most interesting takeaway from doing this exercise on 8-bit:
 The limitations force you to create more efficient solutions, something that often gets
 lost in the age of GHz and GB machines.
