@@ -21,11 +21,6 @@ public class Puzzle {
     int[] x, y;
 
     /**
-     * Hold the maximum range visited so far.
-     */
-    int xMin, xMax, yMin, yMax;
-    
-    /**
      * Creates a puzzle instance for the given number of knots.
      */
     public Puzzle(int knots) {
@@ -51,11 +46,6 @@ public class Puzzle {
            case 'U' -> y[0] += 1;
            case 'D' -> y[0] -= 1;
         }
-        
-        xMin = Math.min(xMin, x[0]);
-        xMax = Math.max(xMax, x[0]);
-        yMin = Math.min(yMin, y[0]);
-        yMax = Math.max(yMax, y[0]);
         
         for (int i = 1; i < knots; i++) {
             int dx = x[i - 1] - x[i];
