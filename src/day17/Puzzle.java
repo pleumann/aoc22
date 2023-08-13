@@ -8,7 +8,7 @@ import java.util.HashMap;
 /**
  * Day 17 "Pyroclastic Flow" part 1.
  */
-public class Puzzle1 {
+public class Puzzle {
 
     /**
      * The pieces as bitmaps.
@@ -294,7 +294,7 @@ public class Puzzle1 {
         System.out.println("*** AoC 2022.17 Pyroclastic Flow ***");
         System.out.println();
         
-        Puzzle1 p = new Puzzle1();
+        Puzzle p = new Puzzle();
         p.load(new BufferedReader(new FileReader(args[0])));
         p.solve1();
         p.solve2();

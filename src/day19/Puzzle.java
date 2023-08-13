@@ -118,7 +118,7 @@ public class Puzzle {
         }
 
         /**
-         * Checks whether we can build a robot of the given type.
+         * Checks whether we need another a robot of the given type.
          */
         boolean shouldBuild(int what) {
             return robots[what] < limit[what];
@@ -192,41 +192,34 @@ public class Puzzle {
     }
 
     /**
-     * Result for part 1.
-     */
-    int part1 = 0;
-
-    /**
-     * Result for part 2.
-     */
-    int part2 = 1;
-
-    /**
      * Processes the whole puzzle.
      */
     void process(BufferedReader r) throws IOException {
-        int num = 1;
+        int part1 = 0;
+        int part2 = 1;
+        
+        int index = 1;
 
         String s = r.readLine();
         while (s != null) {
-            System.out.println("--- Blueprint #" + num + " ---");
+            System.out.println("--- Blueprint #" + index + " ---");
             Blueprint bp = new Blueprint(s);
 
-            if (num < 4) {
+            if (index < 4) {
                 bp.simulate(32);
-                part1 += num * bp.best[8];
+                part1 += index * bp.best[8];
                 part2 *= bp.best[0];
                 System.out.println("Best geodes: " + bp.best[8] + " / " + bp.best[0]);
             } else {
                 bp.simulate(24);
-                part1 += num * bp.best[0];
+                part1 += index * bp.best[0];
                 System.out.println("Best geodes: " + bp.best[0]);
             }
 
             System.out.println();
 
             s = r.readLine();
-            num++;
+            index++;
         }
 
         System.out.println("Part 1: " + part1);

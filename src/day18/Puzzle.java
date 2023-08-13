@@ -21,8 +21,8 @@ public class Puzzle {
     int[][][] map = new int[20][20][20];
 
     /**
-     * Determines the total number of visible cube side. A cube side is visible
-     * if its immediate neighbour is AIR.
+     * Determines the total number of visible cube sides. A cube side is visible
+     * if it is on the outer edge of the map or its immediate neighbour is AIR.
      */
     int visible() {
         int count = 0;
@@ -30,20 +30,20 @@ public class Puzzle {
         for (int i = 0; i < 20; i++) {
             for (int j = 0; j < 20; j++) {
                 for (int k = 0; k < 20; k++) {
-                    if (map[i][j][k] == 1) {
-                        if (i == 0 || map[i - 1][j][k] == AIR) {
+                    if (map[i][j][k] == STONE) {
+                        if (i ==  0 || map[i - 1][j][k] == AIR) {
                             count++;
                         }
                         if (i == 19 || map[i + 1][j][k] == AIR) {
                             count++;
                         }
-                        if (j == 0 ||  map[i][j - 1][k] == AIR) {
+                        if (j ==  0 || map[i][j - 1][k] == AIR) {
                             count++;
                         }
                         if (j == 19 || map[i][j + 1][k] == AIR) {
                             count++;
                         }
-                        if (k == 0 || map[i][j][k - 1] == AIR) {
+                        if (k ==  0 || map[i][j][k - 1] == AIR) {
                             count++;
                         }
                         if (k == 19 || map[i][j][k + 1] == AIR) {
@@ -58,7 +58,7 @@ public class Puzzle {
     }
     
     /**
-     * Floods the map with water.
+     * Recursively flood-fills the AIR in the map with WATER.
      */
     void flood(int x, int y, int z) {
         if (map[x][y][z] == AIR) {
@@ -74,7 +74,7 @@ public class Puzzle {
     }
     
     /**
-     * Inverts the map. Stone becomes air and vice versa. Water stays as-is.
+     * Inverts the map. STONE becomes AIR and vice versa. WATER stays as-is.
      */
     void invert() {
         for (int i = 0; i < 20; i++) {
