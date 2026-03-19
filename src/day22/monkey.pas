@@ -1,7 +1,5 @@
 program Monkey;
 
-{$I /Users/joerg/Projekte/pl0/lib/Files.pas}
-
 type
   Facing = (East, South, West, North);
 
@@ -255,38 +253,38 @@ var
 begin
   WriteLn('Loading...');
 
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
 
   for I := 0 to 49 do
   begin
-    ReadLine(T, S);
+    ReadLn(T, S);
     Move(S[51], Cube[0][I], 50);
     Move(S[101], Cube[1][I], 50);
   end;
 
   for I := 0 to 49 do
   begin
-    ReadLine(T, S);
+    ReadLn(T, S);
     Move(S[51], Cube[2][I], 50);
   end;
 
   for I := 0 to 49 do
   begin
-    ReadLine(T, S);
+    ReadLn(T, S);
     Move(S[1], Cube[3][I], 50);
     Move(S[51], Cube[4][I], 50);
   end;
 
   for I := 0 to 49 do
   begin
-    ReadLine(T, S);
+    ReadLn(T, S);
     Move(S[1], Cube[5][I], 50);
   end;
 
-  ReadLine(T, S);
+  ReadLn(T, S);
 
-  for I := 0 to 5651 do Path[I] := ReadChar(T);
+  for I := 0 to 5651 do Read(T, Path[I]);
   Path[5652] := 'X';
 
   Close(T);

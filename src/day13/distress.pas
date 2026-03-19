@@ -1,6 +1,6 @@
 program Distress;
 
-{$I /Users/joerg/Projekte/pl0/lib/Files.pas}
+{$a-}
 
 type
   PNode = ^TNode;
@@ -58,20 +58,20 @@ begin
   
   if C = '[' then
   begin  
-    C := ReadChar(T);
+    Read(T, C);
     if C <> ']' then
     begin
       AddNode(N, ParseNode(T));
 
       while C = ',' do
       begin
-        C := ReadChar(T);
+        Read(T, C);
         AddNode(N, ParseNode(T));
       end;
     end;
 
     if C <> ']' then WriteLn('Error: '']'' expected.');
-    C := ReadChar(T);
+    Read(T, C);
 
     ParseNode := N;
   end
@@ -80,11 +80,11 @@ begin
     if (C < '0') or (C > '9') then WriteLn('Error: ''0-9'' expected.');
 
     N^.Value := Ord(C) - Ord('0');
-    C := ReadChar(T);
+    Read(T, C);
     while (C >= '0') and (C <= '9') do
     begin
       N^.Value := N^.Value * 10 + Ord(C) - Ord('0');
-      C := ReadChar(T);
+      Read(T, C);
     end;
 
     ParseNode := N;    
@@ -163,21 +163,21 @@ begin
   Before1 := 1;
   Before2 := 2;
 
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
 
-  C := ReadChar(T);
+  Read(T, C);
 
-  while not IsEof(T) do
+  while not Eof(T) do
   begin
 
     N := ParseNode(T);
 
-    C := ReadChar(T);
+    Read(T, C);
     M := ParseNode(T);
 
-    C := ReadChar(T);
-    C := ReadChar(T);
+    Read(T, C);
+    Read(T, C);
 
     if CompareNode(N, M) <= 0 then
     begin
@@ -223,8 +223,6 @@ begin
 
   WriteLn('*** AoC 2022.13 Distress Signal ***');
   WriteLn;
-
-  InitHeap(16364);
 
   Process;
 end.

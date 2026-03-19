@@ -1,7 +1,5 @@
 program Hill;
 
-{$I /Users/joerg/Projekte/pl0/lib/Files.pas}
-
 var
   Map: array [0..47] of array [0..63] of Char;
 
@@ -16,18 +14,18 @@ var
 procedure Load;
 var
   T: Text;
-  S: TString;
+  S: String;
   H: Char;
   I: Integer;
 begin
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
 
   Height := 0;
 
-  while not IsEof(T) do
+  while not Eof(T) do
   begin
-    ReadLine(T, S);
+    ReadLn(T, S);
     for I := 0 to Length(S) - 1 do
     begin
       H := S[I + 1];

@@ -1,7 +1,5 @@
 program NoSpace;
 
-{$I /Users/joerg/Projekte/pl0/lib/files.pas}
-
 procedure Solve;
 const
   Total = 70000000.0;
@@ -10,23 +8,23 @@ var
   Used, Avail, Missing, Small: Real;
   T: Text;
   S: String;
-  BestName: TString;
+  BestName: String;
   BestSize: Real;
   SmallSum: Real;
 
-  function Traverse(Dir: TString; Pass: Integer): Real;
+  function Traverse(Dir: String; Pass: Integer): Real;
   var
     Size, R: Real;
     P, Err: Integer;
-    S: TString;
+    S: String;
   begin          
     WriteLn(#27'APass ', Pass, ': '#27'p', Dir, '':(64-Length(Dir)), #27'q');
 
     Size := 0;
 
-    while not IsEof(T) do
+    while not Eof(T) do
     begin
-      ReadLine(T, S);
+      ReadLn(T, S);
       if S = '$ cd ..' then
         Break
       else if Copy(S, 1, 4) = '$ cd' then
@@ -67,9 +65,9 @@ begin
 
   SmallSum := 0;
 
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
-  ReadLine(T, S);
+  ReadLn(T, S);
   Used := Traverse('', 1);
   Close(T);
 
@@ -87,9 +85,9 @@ begin
 
   BestSize := 999999999.0;
 
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
-  ReadLine(T, S);
+  ReadLn(T, S);
   Used := Traverse('', 2);
   Close(T);
 

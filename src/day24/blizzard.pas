@@ -1,7 +1,5 @@
 program Blizzard;
 
-{$I /Users/joerg/Projekte/pl0/lib/Files.pas}
-
 type
   Point = record
     X, Y: Byte;
@@ -22,16 +20,16 @@ var
 procedure Load;
 var
   T: Text;
-  S: TString;
+  S: String;
   I, J: Byte;
 begin
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
 
-  ReadLine(T, S);
+  ReadLn(T, S);
   for I := 0 to 24 do
   begin
-    ReadLine(T, S);
+    ReadLn(T, S);
     for J := 0 to 119 do Blizzards[I, J] := S[2 + J];
   end;
 

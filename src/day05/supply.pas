@@ -1,9 +1,7 @@
 program Supply;
 
-{$I /Users/joerg/Projekte/pl0/lib/files.pas}
-
 var
-  Stacks: array[0..9] of String[64];
+  Stacks: array[0..9] of String;
 
 procedure Dump(I: Integer);
 var
@@ -78,44 +76,44 @@ begin
   end;
 end;
 
-function Solve(Model: Integer): TString;
+function Solve(Model: Integer): String;
 var
   T: Text;
-  S: TString;
+  S: String;
   I, J, Count, Source, Dest, Err: Integer;
   C: Char;
 begin
   for I := 0 to 9 do
     Clear(I);
 
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
 
-  ReadLine(T, S);
+  ReadLn(T, S);
   while Pos('[', S) <> 0 do
   begin
-    for I := 1 to (Length(S) + 1) / 4 do
+    for I := 1 to (Length(S) + 1) div 4 do
     begin
       C := S[4 * I - 2];
       if C <> ' ' then Insert(C, Stacks[I], 1);
     end;
     
-    ReadLine(T, S);
+    ReadLn(T, S);
   end;
 
   for I := 1 to 9 do
     Dump(I);
 
-  ReadLine(T, S); { Empty line }
-  while not IsEof(T) do
+  ReadLn(T, S); { Empty line }
+  while not Eof(T) do
   begin
-    ReadLine(T, S);
+    ReadLn(T, S);
 
     I := Pos(' from ', S);
     J := Pos(' to ', S);
 
     Val(Copy(S, 6, I - 6), Count, Err);
-    Val(Copy(S, I + 6, J - I + 6), Source, Err);
+    Val(Copy(S, I + 6, J - I - 6), Source, Err);
     Val(Copy(S, J + 4, 255), Dest, Err);
 
     GotoXY(1, 3);
@@ -137,7 +135,7 @@ begin
 end;
 
 var
-  S: TString;
+  S: String;
 
 begin
   ClrScr;

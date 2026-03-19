@@ -1,7 +1,5 @@
 program Tuning;
 
-{$I /Users/joerg/Projekte/pl0/lib/files.pas}
-
 var
   Data: array[0..4095] of Char;
   Size: Integer;
@@ -11,16 +9,16 @@ var
   T: Text;
   C: Char;
 begin
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
 
   Size := 0;
-  C := ReadChar(T);
+  Read(T, C);
   while C <> #10 do
   begin
     Data[Size] := C; 
     Size := Size + 1;
-    C := ReadChar(T);
+    Read(T, C);
   end;
 
   Close(T);

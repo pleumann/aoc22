@@ -1,7 +1,5 @@
 program Flow;
 
-{$I /Users/joerg/Projekte/pl0/lib/Files.pas}
-
 type
   TPiece = array[0..3] of Integer;
 
@@ -33,7 +31,7 @@ const
 var
   Map: array[0..6143] of Byte;
 
-  Jet: array[0..10099] of Char;
+  Jet: array[0..1499] of Byte;
 
   JetSize, I: Integer;
 
@@ -58,6 +56,30 @@ begin
   SafeMod := A - Int(A / B) * B;
 end;
 
+function GetJet(I: Integer): Boolean;
+var
+  J, K: Byte;
+begin
+  J := Jet[I shr 3];
+  K := 1 shl (I and 7);
+  GetJet := J and K <> 0;  
+end;
+
+procedure SetJet(I: Integer; B: Boolean);
+var
+  J, K: Byte;
+begin
+  J := Jet[I shr 3];
+  K := 1 shl (I and 7);
+
+  if B then
+    J := J or K
+  else
+    J := J and not K;
+
+  Jet[I shr 3] := J;
+end;
+
 procedure LoadJet;
 var
   T: Text;
@@ -65,14 +87,14 @@ var
 begin
   JetSize := 0;
 
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
-  while not IsEof(T) do
+  while not Eof(T) do
   begin
-    C := ReadChar(T);
+    Read(T, C);
     if C >= ' ' then
     begin
-      Jet[JetSize] := C;
+      SetJet(JetSize, C = '>');
       Inc(JetSize);
     end;
   end;
@@ -158,7 +180,7 @@ var
   HaveCycle, Ok: Boolean;
   Item: TCache;
   Target, Count2, Cycle, Factor, A, B: Real;
-  S: TString;
+  S: String;
 begin
   Map[0] := $ff;
   for I := 1 to MapSize - 1 do
@@ -185,7 +207,7 @@ begin
     begin
       Backup := MyPiece;
 
-      if Jet[NextJet] = '<' then
+      if not GetJet(NextJet) then
         for I := 0 to 3 do MyPiece[I] := MyPiece[I] shl 1
       else
         for I := 0 to 3 do MyPiece[I] := MyPiece[I] shr 1;

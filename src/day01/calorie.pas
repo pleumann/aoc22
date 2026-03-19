@@ -1,7 +1,5 @@
 program Calorie;
 
-{$I /Users/joerg/Projekte/pl0/lib/files.pas}
-
 var
   Scores: array[0..2] of Real;
   X, Y: Integer;
@@ -35,7 +33,7 @@ end;
 procedure Check(R: Real);
 var
   I: Integer;
-  S: TString;
+  S: String;
 begin
   Print(-1);
   Print(R);
@@ -66,7 +64,7 @@ end;
 procedure Solve;
 var
   T: Text;
-  S: TString;
+  S: String;
   I, Err: Integer;
   R, Current: Real;
 begin
@@ -76,12 +74,12 @@ begin
   for I := 0 to 2 do
     Scores[I] := 0;
 
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
 
-  while not IsEof(T) do
+  while not Eof(T) do
   begin
-    ReadLine(T, S);
+    ReadLn(T, S);
 
     if S = '' then
     begin
@@ -90,7 +88,7 @@ begin
     end
     else
     begin
-      Val(S + '  ', R, Err);
+      Val(S, R, Err);
       Print(R);
       Current := Current + R;
     end;

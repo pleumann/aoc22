@@ -1,6 +1,4 @@
-program TreeTop;
-
-{$I /Users/joerg/Projekte/pl0/lib/Files.pas}
+program Rope;
 
 type
   TArrayOfSets = array[0..383] of set of Byte; (* Table for visited locations *)
@@ -77,7 +75,7 @@ end;
  *)
 procedure Print(Count: Integer; Dir: Char; Steps: Integer);
 const
-  Bridge: TString = 'H123456789';
+  Bridge: String = 'H123456789';
   Col: Integer = 12;
 var
   I, MinX, MinY: Integer;
@@ -125,7 +123,7 @@ end;
 procedure Process;
 var
   T: Text;
-  S: TString;
+  S: String;
   Count, I, Steps, Err: Integer;
   C: Char;
 begin
@@ -148,12 +146,12 @@ begin
 
   Print(0, ' ', 0);
 
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
 
-  while not IsEof(T) do
+  while not Eof(T) do
   begin
-    ReadLine(T, S);
+    ReadLn(T, S);
 
     C := S[1];
     Val(Copy(S, 3, 255), Steps, Err);

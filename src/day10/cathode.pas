@@ -1,7 +1,5 @@
 program Cathode;
 
-{$I /Users/joerg/Projekte/pl0/lib/Files.pas}
-
 const
   Cycle:     Integer = 0;     (* Current cycle              *)
   X:         Integer = 1;     (* Register value             *)
@@ -21,10 +19,10 @@ begin
   WriteLn('*** AoC 2022.10 Cathode-Ray Tube ***');
   WriteLn;
 
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
 
-  ReadLine(T, S);
+  ReadLn(T, S);
   repeat
     Cycle := Cycle + 1;
     
@@ -62,9 +60,9 @@ begin
         WaitState := True;
       end;
       
-      ReadLine(T, S);
+      ReadLn(T, S);
     end;
-  until IsEof(T);
+  until Eof(T);
 
   Close(T);
 

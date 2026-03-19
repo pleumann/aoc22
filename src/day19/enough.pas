@@ -1,6 +1,6 @@
 program Enough;
 
-{$I /Users/joerg/Projekte/pl0/lib/Files.pas}
+{$a-}
 
 const
   Timeout = 10300;
@@ -21,7 +21,7 @@ procedure Update(B: Boolean);
 var
   I: Integer;
 begin
-  GotoXY(14 + 36 * ((Num - 1) / 15), 5 + ((Num - 1) mod 15));
+  GotoXY(14 + 36 * ((Num - 1) div 15), 5 + ((Num - 1) mod 15));
   if B then Write(#27'p');
   for I := 0 to 9 do Write(Best[I]:3);
   if B then Write(#27'q');
@@ -171,7 +171,7 @@ begin
 
   (* Is it possible to beat the current best number of geodes? *)
   Existing := Rounds * Robots[Geode];
-  Potential := ((Rounds - 1) * Rounds) / 2;
+  Potential := ((Rounds - 1) * Rounds) div 2;
   if NumGeodes + Existing + Potential <= Best[0] then Exit;
 
   (* Did we do too many iterations without any progress? *)
@@ -203,7 +203,7 @@ begin
   end;
 end;
 
-procedure Split(S: TString; C: Char; var A: TStringArray);
+procedure Split(S: String; C: Char; var A: TStringArray);
 var
   I, J, K: Byte;
 begin
@@ -224,7 +224,7 @@ begin
   end;
 end;
 
-function StrToInt(S: TString): Integer;
+function StrToInt(S: String): Integer;
 var
   I, E: Integer;
 begin
@@ -232,7 +232,7 @@ begin
   StrToInt := I;
 end;
 
-function StrToRes(S: TString): Resource;
+function StrToRes(S: String): Resource;
 begin
   case S[2] of
     'r': StrToRes := Ore;
@@ -248,7 +248,7 @@ procedure Load(var T: Text);
 var
   I, J: Resource;
   K, P: Integer;
-  S: TString;
+  S: String;
   A: TStringArray;
 begin
   for I := Ore to Geode do
@@ -266,7 +266,7 @@ begin
 
   Robots[Ore] := 1;
 
-  ReadLine(T, S);
+  ReadLn(T, S);
   P := Pos(':', S);
   Delete(S, 1, P + 1);
 
@@ -320,9 +320,9 @@ begin
   Part1 := 0;
   Part2 := 1;
 
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
-  while not IsEof(T) do
+  while not Eof(T) do
   begin
     Load(T);
 

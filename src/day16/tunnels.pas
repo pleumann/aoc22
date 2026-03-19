@@ -1,6 +1,6 @@
 program Tunnels;
 
-{$I /Users/joerg/Projekte/pl0/lib/Files.pas}
+{$a-}
 
 type
   TValve = record
@@ -14,11 +14,11 @@ type
 var
   Valves: array[0..63] of TValve;
   NumValves, Best, MaxFlow, I, J, Run, Best1, Best2: Integer;
-  Names: TString;
+  Names: String;
   FlowTable: array[0..29] of Integer;
   History: array[0..30] of Byte;
 
-function Lookup(S: TString): Integer;
+function Lookup(S: String): Integer;
 var
   I: Integer;
 begin
@@ -29,12 +29,12 @@ begin
     I := Length(Names) - 2;
     Inc(NumValves);
   end;
-  Lookup := (I - 1) / 3; 
+  Lookup := (I - 1) div 3; 
 end;
 
 (* Valve AT has flow rate=17; tunnels lead to valves DX, BU, NE, BR, TD *)
 
-procedure Init(S: TString);
+procedure Init(S: String);
 var
   N, P, Q, E: Integer;
 begin
@@ -80,17 +80,17 @@ end;
 procedure Load;
 var
   T: Text;
-  S: TString;
+  S: String;
 begin
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
 
   NumValves := 0;
   Names := '';
 
-  while not IsEof(T) do
+  while not Eof(T) do
   begin
-    ReadLine(T, S);
+    ReadLn(T, S);
     Init(S);
   end;
 
@@ -177,7 +177,7 @@ begin
   end;
 end;
 
-procedure Spell(S: TString);
+procedure Spell(S: String);
 var
   I, J: Integer;
 begin

@@ -32,7 +32,7 @@ begin
   BigCmp := 0;
 end;
 
-procedure BigVal(S: TString; var X: BigInt);
+procedure BigVal(S: String; var X: BigInt);
 var
   B: Byte;
   Y: BigInt;
@@ -57,7 +57,7 @@ begin
   end;
 end;
 
-procedure BigStr(X: BigInt; var S: TString);
+procedure BigStr(X: BigInt; var S: String);
 var
   Y: BigInt;
 begin

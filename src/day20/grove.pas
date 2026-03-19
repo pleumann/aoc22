@@ -1,10 +1,5 @@
 program Grove;
 
-{$I /Users/joerg/Projekte/pl0/lib/Files.pas}
-
-const
-  FileName = 'INPUT   .TXT';
-
 type
   PNode = ^TNode;
   TNode = record
@@ -129,14 +124,14 @@ var
 begin
   WriteLn('Loading input file...');
 
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
 
   Count := 0;
 
-  while not IsEof(T) do
+  while not Eof(T) do
   begin
-    ReadLine(T, S);
+    ReadLn(T, S);
     Val(S, I, Err);
     Nodes[Count].Value := I;
     if I = 0 then Zero := Count;
@@ -171,9 +166,9 @@ begin
     J := Nodes[I].Value;
 
     if J > 0 then
-      J := Fix(SafeMod(SafeMod(Factor, Count - 1) * SafeMod(J, Count - 1), Count - 1))
+      J := Trunc(SafeMod(SafeMod(Factor, Count - 1) * SafeMod(J, Count - 1), Count - 1))
     else
-      J := Count - 1 + Fix(SafeMod(SafeMod(Factor, Count - 1) * SafeMod(J, Count - 1), Count -1));
+      J := Count - 1 + Trunc(SafeMod(SafeMod(Factor, Count - 1) * SafeMod(J, Count - 1), Count -1));
 
     Nodes[I].Value2 := J;
   end;

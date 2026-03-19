@@ -1,7 +1,5 @@
 program Regolith;
 
-{$I /Users/joerg/Projekte/pl0/lib/Files.pas}
-
 type
   TStringArray = array[0..31] of String[10];
 
@@ -33,7 +31,7 @@ begin
   GetRock := Y in Rock[X];
 end;
 
-function Split(S, T: TString; var A: TStringArray): Integer;
+function Split(S, T: String; var A: TStringArray): Integer;
 var
   I, J: Byte;
 begin
@@ -52,7 +50,7 @@ begin
   Split := I;
 end;
 
-function StrToInt(S: TString): Integer;
+function StrToInt(S: String): Integer;
 var
   I, E: Integer;
 begin
@@ -60,7 +58,7 @@ begin
   StrToInt := I;
 end;
 
-procedure ParseTuple(S: TString; var I, J: Integer);
+procedure ParseTuple(S: String; var I, J: Integer);
 var
   K: Byte;
 begin
@@ -93,18 +91,18 @@ end;
 procedure Load;
 var
   T: Text;
-  S: TString;
+  S: String;
   A: TStringArray;
   Num, I, J, X1, X2, Y1, Y2: Integer;
 begin
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
 
   Floor := 0;
 
-  while not IsEof(T) do
+  while not Eof(T) do
   begin
-    ReadLine(T, S);
+    ReadLn(T, S);
     (* WriteLn(S); *)
     Num := Split(S, ' -> ', A);
     

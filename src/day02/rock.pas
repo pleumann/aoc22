@@ -1,9 +1,7 @@
 program Rock;
 
-{$I /Users/joerg/Projekte/pl0/lib/files.pas}
-
 const
-  AsciiArt: array[1..15] of TString = (
+  AsciiArt: array[1..15] of String[80] = (
     '             ___,@                                                    ',
     '            /  <                                                      ',
     '       ,_  /    \  _,                                ______           ',
@@ -87,7 +85,7 @@ end;
 procedure Solve;
 var
   T: Text;
-  S: TString;
+  S: String;
   Them, Us: Char;
   Part1, Part2, Round: Integer;
 begin
@@ -96,12 +94,12 @@ begin
   Part1 := 0;
   Part2 := 0;
 
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
 
-  while not IsEof(T) do
+  while not Eof(T) do
   begin
-    ReadLine(T, S);
+    ReadLn(T, S);
 
     GotoXY(34,4);
 

@@ -1,7 +1,5 @@
 program HotAir;
 
-{$I /Users/joerg/Projekte/pl0/lib/Files.pas}
-
 function Decimal(C: Char): Integer;
 begin
   case C of
@@ -23,9 +21,9 @@ begin
     Snafu := Char(48 + I);
 end;
 
-function Add(S, T: TString): TString;
+function Add(S, T: String): String;
 var
-  R: TString;
+  R: String;
   I, J, X, Y, Z, C: Integer;
 begin
   R := '';
@@ -58,7 +56,7 @@ begin
   Add := R;
 end;
 
-procedure Spell(X, Y: Integer; S: TString);
+procedure Spell(X, Y: Integer; S: String);
 var
   I, J: Integer;
   C: Char;
@@ -116,11 +114,11 @@ begin
   WriteLn('Part 1:        ', Sum:20);
   WriteLn('               --------------------');
 
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
-  while not IsEof(T) do
+  while not Eof(T) do
   begin
-    ReadLine(T, Num);
+    ReadLn(T, Num);
     Sum := Add(Sum, Num);
     GotoXY(1, 5);
     Write(#27'L');

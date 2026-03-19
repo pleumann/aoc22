@@ -1,7 +1,5 @@
 program Boulders;
 
-{$I /Users/joerg/Projekte/pl0/lib/Files.pas}
-
 const
   Air   = 0;
   Stone = 1;
@@ -26,11 +24,11 @@ var
   S: String;
   P, Error, I, J, K: Integer;
 begin
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
-  while not IsEof(T) do
+  while not Eof(T) do
   begin
-    ReadLine(T, S);
+    ReadLn(T, S);
     P := Pos(',', S);
 
     Val(Copy(S, 1, P - 1), I, Error);

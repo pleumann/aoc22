@@ -1,6 +1,4 @@
-program Monkey;
-
-{$I /Users/joerg/Projekte/pl0/lib/Files.pas}
+program Monkey2;
 
 type
   TMonkey = record
@@ -42,26 +40,26 @@ end;
 procedure Load;
 var
   I, K, P, Error: Integer;
-  S: TString;
+  S: String;
   T: Text;
 begin
   NumMonkeys := 0;
 
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
 
   Modulus := 1;
 
   NumItems  := 0;
 
-  while not IsEof(T) do
+  while not Eof(T) do
   begin
-    ReadLine(T, S);
+    ReadLn(T, S);
     Val(Copy(S, 8, 255), I, Error);
 
     Monkeys[NumMonkeys].Activity := 0;
 
-    ReadLine(T, S);
+    ReadLn(T, S);
     S := Copy(S, 19, 255);
     while Length(S) <> 0 do
     begin
@@ -72,7 +70,7 @@ begin
       S := Copy(S, 5, 255);
     end;
 
-    ReadLine(T, S);
+    ReadLn(T, S);
     Monkeys[NumMonkeys].Operation := S[24];
     S := Copy(S, 26, 255);
     if S = 'old' then Monkeys[NumMonkeys].Operation := '^' else
@@ -81,18 +79,18 @@ begin
       Monkeys[NumMonkeys].Argument := I;
     end;
 
-    ReadLine(T, S);
+    ReadLn(T, S);
     Val(Copy(S, 22, 255), I, Error);
     Monkeys[NumMonkeys].Check := I;
     Modulus := Modulus * I;
     
-    ReadLine(T, S);
+    ReadLn(T, S);
     Val(Copy(S, 30, 255), Monkeys[NumMonkeys].Targets[True], Error);
 
-    ReadLine(T, S);
+    ReadLn(T, S);
     Val(Copy(S, 31, 255), Monkeys[NumMonkeys].Targets[False], Error);
 
-    ReadLine(T, S);
+    ReadLn(T, S);
     
     NumMonkeys := NumMonkeys + 1;
   end;
@@ -270,7 +268,7 @@ begin
   for I := Rest + 1 to Length do
     Round;
 
-  Cycles := (10000 - Start) / Length - 2;
+  Cycles := (10000 - Start) div Length - 2;
 
   Dump;
   Scroll;

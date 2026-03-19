@@ -1,7 +1,5 @@
 program Beacon;
 
-{$I /Users/joerg/Projekte/pl0/lib/Files.pas}
-
 type
   TRange = record
     Start, Stop: Real;
@@ -67,17 +65,17 @@ begin
   if Intersect(From, R, Pieces[Count]) then Inc(Count);
 end;
 
-procedure SensorInit(var S: TSensor; Data: TString);
+procedure SensorInit(var S: TSensor; Data: String);
 
   function GetNumber(C: Char): Real;
   var
     P, Q, E: Integer;
     R: Real; 
-    S: TString;
+    S: String;
   begin
     P := Pos('=', Data);
     Q := Pos(C, Data);
-    S := Copy(Data, P + 1, Q - P - 1) + '$';
+    S := Copy(Data, P + 1, Q - P - 1);
     Val(S, R, E);
     Delete(Data, 1, Q);
     GetNumber := R;
@@ -95,7 +93,7 @@ begin
 
     D := Abs(BX - X) + Abs(BY - Y);
 
-    GotoXY(1 + 40 * (NumSensors / 12), 6 + NumSensors mod 12);
+    GotoXY(1 + 40 * (NumSensors div 12), 6 + NumSensors mod 12);
     Write('[', NumSensors:2, '] x=', X:7:0, ' y=', Y:7:0, ' d=', D:7:0);
   end;
 end;
@@ -120,16 +118,16 @@ end;
 procedure Load;
 var
   T: Text;
-  S: TString;
+  S: String;
 begin
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
 
   NumSensors := 0;
 
-  while not IsEof(T) do
+  while not Eof(T) do
   begin
-    ReadLine(T, S);
+    ReadLn(T, S);
     SensorInit(Sensors[NumSensors], S);
     Inc(NumSensors);
   end;
@@ -145,7 +143,7 @@ begin
 
   for I := 0 to NumRanges - 1 do
   begin
-    GotoXY(1 + 20 * (I mod 4), 21 + I / 4);
+    GotoXY(1 + 20 * (I mod 4), 21 + I div 4);
     Write('[', Ranges[I].Start:8:0, ',', Ranges[I].Stop - 1:8:0, ']');
   end;
 
@@ -213,7 +211,7 @@ end;
 
 procedure SetHighlight(I: Integer; B: Boolean);
 begin
-  GotoXY(2 + 40 * (I / 12), 6 + I mod 12);
+  GotoXY(2 + 40 * (I div 12), 6 + I mod 12);
   if B then
     Write(#27'p', I:2, #27'q')
   else

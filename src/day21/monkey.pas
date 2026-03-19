@@ -1,7 +1,8 @@
 program Monkey;
 
-{$i /Users/joerg/Projekte/pl0/lib/Files.pas}
 {$i bigint.pas}
+
+{$a-}
 
 type
   NameStr = String[4];
@@ -26,7 +27,7 @@ begin
     HashMap[I] := nil;
 end;
 
-function HashKey(Name: TString): Integer;
+function HashKey(Name: String): Integer;
 var
   I: Integer;
 begin
@@ -49,7 +50,7 @@ begin
   HashMap[I] := Node;
 end;
 
-function Lookup(Name: TString): NodePtr;
+function Lookup(Name: String): NodePtr;
 var
   I: Integer;
   P: NodePtr;
@@ -74,18 +75,18 @@ end;
 procedure Load;
 var
   T: Text;
-  S, U: TString;
+  S, U: String;
   N: NodePtr;
   I: Integer;
 begin
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
 
   WriteLn('Loading...');
 
   Reset(T);
-  while not IsEof(T) do
+  while not Eof(T) do
   begin
-    ReadLine(T, S);
+    ReadLn(T, S);
     if S = '' then Continue;
     New(N);
     U := Copy(S, 1, 4);
@@ -98,9 +99,9 @@ begin
   WriteLn('Resolving...');
 
   Reset(T);
-  while not IsEof(T) do
+  while not Eof(T) do
   begin
-    ReadLine(T, S);
+    ReadLn(T, S);
     if S = '' then Continue;
     N := Lookup(Copy(S, 1, 4));
 
@@ -180,12 +181,10 @@ end;
 var
   Root, Humn: NodePtr;
   I, J, L, H, T, R, Left, Right: BigInt;
-  S: TString;
+  S: String;
   C: Integer;
 
 begin
-  InitHeap(24576);
-
   Write(#27'f');
 
   ClrScr;

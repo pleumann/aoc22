@@ -1,8 +1,6 @@
 program Camp;
 
-{$I /Users/joerg/Projekte/pl0/lib/files.pas}
-
-procedure Split(S: TString; C: Char; var T, U: TString);
+procedure Split(S: String; C: Char; var T, U: String);
 var
   P: Integer;
 begin
@@ -16,7 +14,7 @@ end;
 
 function Scale(X: Integer): Integer;
 begin
-  Scale := 1 + X * 74 / 100;
+  Scale := 1 + X * 74 div 100;
 end;
 
 procedure Draw(Row, Left, Right: Integer);
@@ -48,8 +46,8 @@ end;
 procedure Solve;
 var
   T: Text;
-  S: TString;
-  L: array[0..3] of TString;
+  S: String;
+  L: array[0..3] of String;
   A, B, C, D, Err, Row, Part1, Part2: Integer;
 begin
   Part1 := 0;
@@ -57,12 +55,12 @@ begin
 
   Row := 6;
 
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
 
-  while not IsEof(T) do
+  while not Eof(T) do
   begin
-    ReadLine(T, S);
+    ReadLn(T, S);
 
     Split(S, ',', L[0], L[1]);
 

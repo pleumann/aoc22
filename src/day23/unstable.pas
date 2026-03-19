@@ -1,7 +1,5 @@
 program Unstable;
 
-{$I /Users/joerg/Projekte/pl0/lib/Files.pas}
-
 type
   Direction = (North, South, West, East, Happy);
 
@@ -299,7 +297,7 @@ end;
 procedure Load;
 var
   T: Text;
-  S: TString;
+  S: String;
   X, Y: Byte;
 begin
   NumElves := 0;
@@ -310,12 +308,12 @@ begin
 
   Y := 25;
 
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
 
-  while not IsEof(T) do
+  while not Eof(T) do
   begin
-    ReadLine(T, S);
+    ReadLn(T, S);
     for X := 1 to Length(S) do
       if S[X] = '#' then
       begin

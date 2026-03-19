@@ -1,7 +1,5 @@
 program TreeTop;
 
-{$I /Users/joerg/Projekte/pl0/lib/Files.pas}
-
 var
   Map: array[0..99] of array[0..99] of Char;
   Size: Integer;
@@ -9,26 +7,26 @@ var
 procedure Load;
 var
   T: Text;
-  S: TString;
+  S: String;
   I, J: Integer;
 begin
   WriteLn('           '#27'p    Loading     '#27'q');
   WriteLn;
 
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
 
-  ReadLine(T, S);
+  ReadLn(T, S);
   Size := Length(S);
 
   for I := 0 to Size - 1 do
   begin
     Write('.');
-    if I mod 33 = 32 then WriteLn((I + 1) * 100 / Size:4, '%');
+    if I mod 33 = 32 then WriteLn((I + 1) * 100 / Size:4:0, '%');
     for J := 0 to Size - 1 do
       Map[I][J] := S[J + 1];
 
-    ReadLine(T, S);
+    ReadLn(T, S);
   end;
         
   Close(T);
@@ -99,7 +97,7 @@ begin
   for I := 0 to Size - 1 do
   begin
     Write('.');
-    if I mod 33 = 32 then WriteLn((I + 1) * 100 / Size:4, '%');
+    if I mod 33 = 32 then WriteLn((I + 1) * 100 / Size:4:0, '%');
 
     for J := 0 to Size - 1 do
     begin

@@ -1,11 +1,9 @@
 program Rucksack;
 
-{$I /Users/joerg/Projekte/pl0/lib/files.pas}
-
 type
   TCharSet = set of Char;
 
-function StrToSet(S: TString): TCharSet;
+function StrToSet(S: String): TCharSet;
 var
   I: Integer;
   C: TCharSet;
@@ -57,13 +55,13 @@ begin
   end;
 end;
 
-function Sum1(S: TString): Integer;
+function Sum1(S: String): Integer;
 var
   L, I: Integer;
   C, C1, C2: TCharSet;
-  S1, S2: TString;
+  S1, S2: String;
 begin
-  L := Length(S) / 2;
+  L := Length(S) div 2;
 
   S1 := Copy(S, 1, L);
   S2 := Copy(S, L + 1, 255);
@@ -92,7 +90,7 @@ begin
   Sum1 := I;
 end;
 
-function Sum2(S1, S2, S3: TString): Integer;
+function Sum2(S1, S2, S3: String): Integer;
 var
   C1, C2, C3, C: TCharSet;
   I: Integer;
@@ -130,17 +128,17 @@ end;
 procedure Solve1;
 var
   T: Text;
-  S: TString;
+  S: String;
   I: Integer;
 begin
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
 
   I := 0;
 
-  while not IsEof(T) do
+  while not Eof(T) do
   begin
-    ReadLine(T, S);
+    ReadLn(T, S);
 
     I := I + Sum1(S);
 
@@ -154,19 +152,19 @@ end;
 procedure Solve2;
 var
   T: Text;
-  S1, S2, S3: TString;
+  S1, S2, S3: String;
   I: Integer;
 begin
-  Assign(T, 'INPUT   .TXT');
+  Assign(T, ParamStr(1));
   Reset(T);
 
   I := 0;
 
-  while not IsEof(T) do
+  while not Eof(T) do
   begin
-    ReadLine(T, S1);
-    ReadLine(T, S2);
-    ReadLine(T, S3);
+    ReadLn(T, S1);
+    ReadLn(T, S2);
+    ReadLn(T, S3);
 
     I := I + Sum2(S1, S2, S3);
 
