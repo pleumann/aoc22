@@ -33,7 +33,7 @@ public class Puzzle {
      * Converts a decimal number to a snafu number by first adding the snafu
      * number 222...222 of same length, then using normal modulo rules, then
      * converting back. Not sure if it's *the* way to do it, but it seemed quite
-     * straighforward.
+     * straightforward at the time.
      */
     String decimalToSnafu(long decimal) {
         long place = 1;

@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.util.HashSet;
 
 /**
- * Day 19 "Not Enoguh Minerals" parts 1 and 2. Awful original BFS solution. :-)
+ * Day 19 "Not Enough Minerals" parts 1 and 2. Awful original BFS solution. :-)
  */
 public class PuzzleBfs {
 
     /**
-     * Resource type comstants.
+     * Resource type constants.
      */
     static final int ORE      = 0;
     static final int CLAY     = 1;

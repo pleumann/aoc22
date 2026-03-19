@@ -12,7 +12,7 @@ public class Puzzle {
     class Blueprint {
 
         /**
-         * Resource type comstants.
+         * Resource type constants.
          */
         static final int ORE = 0;
         static final int CLAY = 1;
@@ -20,12 +20,12 @@ public class Puzzle {
         static final int GEODE = 3;
 
         /**
-         * Contains the current blueprint.
+         * Contains the details of this blueprint.
          */
         int cost[][] = new int[4][4];
 
         /**
-         * Maximum robots we need of each type.
+         * Maximum number of robots we need of each type.
          */
         int limit[] = new int[4];
 
@@ -96,7 +96,7 @@ public class Puzzle {
         }
 
         /**
-         * Lets all our robots collect resource for this round.
+         * Lets all our robots collect resources for this round.
          */
         void collect() {
             for (int i = 0; i < 4; i++) {

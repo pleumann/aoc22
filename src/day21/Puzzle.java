@@ -14,6 +14,7 @@ public class Puzzle {
      * Represents a node in the expression tree. Can be evaluated.
      */
     class Node {
+        
         String name;
         
         char op;
