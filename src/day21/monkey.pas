@@ -75,7 +75,7 @@ end;
 procedure Load;
 var
   T: Text;
-  S, U: String;
+  S: String;
   N: NodePtr;
   I: Integer;
 begin
@@ -89,9 +89,8 @@ begin
     ReadLn(T, S);
     if S = '' then Continue;
     New(N);
-    U := Copy(S, 1, 4);
-    N^.Name := U;           (* Bug: Should be N^.Name := Copy(...) *)
-    Define(N);              (* Bug: Crashes in Define              *)
+    N^.Name := Copy(S, 1, 4);
+    Define(N);
   end;
 
   Close(T);
