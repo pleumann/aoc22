@@ -10,7 +10,10 @@ var
   S: String;
   I, J: Integer;
 begin
-  WriteLn('           '#27'p    Loading     '#27'q');
+  Write('           ');
+  InverseOn;
+  WriteLn('    Loading     ');
+  InverseOff;
   WriteLn;
 
   Assign(T, ParamStr(1));
@@ -88,7 +91,10 @@ var
   I, J, Trees, Visible: Integer;
   Score, Best: Real;
 begin
-  WriteLn('           '#27'p   Processing   '#27'q');
+  Write('           ');
+  InverseOn;
+  WriteLn('   Processing   ');
+  InverseOff;
   WriteLn;
 
   Trees := 0;

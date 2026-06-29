@@ -15,7 +15,7 @@ var
   Error: Integer;
 
 begin
-  WriteLn;
+  ClrScr;
   WriteLn('*** AoC 2022.10 Cathode-Ray Tube ***');
   WriteLn;
 

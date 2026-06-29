@@ -22,9 +22,9 @@ var
   I: Integer;
 begin
   GotoXY(14 + 36 * ((Num - 1) div 15), 5 + ((Num - 1) mod 15));
-  if B then Write(#27'p');
+  if B then InverseOn;
   for I := 0 to 9 do Write(Best[I]:3);
-  if B then Write(#27'q');
+  if B then InverseOff;
 end;
 
 function Min(I, J: Integer): Integer;

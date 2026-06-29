@@ -174,11 +174,17 @@ begin
   begin
     GotoXY(1 + X - Left, 3 + Y - Top);
     Write('o');
+    {$ifndef SYS_AGON}
     for K := 0 to 255 do begin end;
+    {$endif}
   end
   else if GetRock(Horz[Y], Y + 1) and ((Part2 = 0) or (Y < Floor - 1)) then
   begin
+    {$ifdef SYS_AGON}
+    Delay(1000);
+    {$else}
     for I := -32768 to 16383 do begin end;
+    {$endif}
 
     Top := Y - 19;
     if Top < 0 then Top := 0;
@@ -186,9 +192,11 @@ begin
     Left := 160;
 
     GotoXY(58, 1);
-    Write(#27'p AOC-CCTV at level ', Top:3, ' '#27'q');
+    InverseOn;
+    Write(' AOC-CCTV at level ', Top:3, ' ');
+    InverseOff;
     GotoXY(1, 3);
-    Write(#27'J');
+    ClrEos;
     
     for I := 0 to 21 do
     begin
@@ -196,7 +204,13 @@ begin
       for J := 0 to 79 do
         if GetSand(Left + J, Top + I) (* or (Left + J = Horz[Top + I]) *) then
         begin
-          if GetRock(Left + J, Top + I) then Write(#27'p#'#27'q') else Write('o');
+          if GetRock(Left + J, Top + I) then
+          begin
+            InverseOn;
+            Write('#');
+            InverseOff;
+          end
+          else Write('o');
         end
         else Write(' ');
     end;
@@ -241,7 +255,7 @@ begin
 end;
 
 begin
-  Write(#27'f');
+  CursorOff;
 
   ClrScr;
 
@@ -253,5 +267,5 @@ begin
   Load;
   Solve;
 
-  Write(#27'e');
+  CursorOn;
 end.

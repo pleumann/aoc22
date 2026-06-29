@@ -65,7 +65,13 @@ begin
   if (X > 10) and (X < 30) then
   begin
     GotoXY(1 + Y, X - 5);
-    if Modified then Write(#27'p', Map[X, Y], #27'q') else Write(Map[X, Y]);
+    if Modified then
+    begin
+      InverseOn;
+      Write(Map[X, Y]);
+      InverseOff;
+    end
+    else Write(Map[X, Y]);
   end;
 end;
 
@@ -126,7 +132,7 @@ var
   I, J, Best, BestX, BestY: Integer;
 
 begin
-  Write(#27'f');
+  CursorOff;
 
   ClrScr;
   WriteLn('*** AoC 2022.12 Hill Climbing Algorithm ***');
@@ -161,6 +167,7 @@ begin
 
   GotoXY(20, 4); WriteLn('Part 2: Trail starting at ', BestX:2, ',', BestY:2, ' costs ', Best, '.');
 
-  Write(#27'J'#27'e');
+  ClrEos;
+  CursorOn;
 end.
     

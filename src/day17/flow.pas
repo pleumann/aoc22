@@ -37,6 +37,7 @@ var
 
   Cache: array[0..3000] of TCache;
 
+{$ifdef SYS_CPM}
 procedure ConOut(C: Char); register;
 inline (
   $4d /                 (* ld c,l           *)
@@ -45,6 +46,15 @@ inline (
   $19 /                 (* add hl,de        *)
   $e9                   (* jp (hl)          *)
 );
+{$endif}
+
+{$ifdef SYS_AGON}
+procedure ConOut(C: Char); register;
+inline (
+  $7d /                 (* ld a,l           *)
+  $d7                   (* rst $10          *)
+);
+{$endif}
 
 function Max(I, J: Integer): Integer;
 begin
@@ -160,9 +170,11 @@ begin
   begin
     if B and $80 <> 0 then
     begin
-      ConOut(#27); ConOut('p');
+      InverseOn;
+      //ConOut(#27); ConOut('p');
       ConOut(' '); ConOut(' ');
-      ConOut(#27); ConOut('q');
+      //ConOut(#27); ConOut('q');
+      InverseOff;
     end
     else
     begin
@@ -286,7 +298,10 @@ begin
               Target  := SafeMod(1000000.0 * SafeMod(1000000.0, Cycle) - Count, Cycle) + Count;
 
               GotoXY(1, 10);
-              WriteLn(#27'p    Cycle detected!    '#27'q');
+              InverseOn;
+              Write('    Cycle detected!    ');
+              InverseOff;
+              WriteLn;
               WriteLn;
               WriteLn('Length: ', Cycle:0:0, ' (', Item.Count, '-', Count, ')');
               WriteLn('Height: ', Delta);
@@ -318,7 +333,7 @@ begin
 end;
 
 begin
-  Write(#27'f');
+  CursorOff;
 
   ClrScr;
 
@@ -350,5 +365,5 @@ begin
 
   GotoXY(1, 23);
 
-  Write(#27'e');
+  CursorOn;
 end.

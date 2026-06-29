@@ -1,5 +1,29 @@
 program Rock;
 
+{$ifdef SYS_CPM}
+procedure InverseOn;
+begin
+  Write(#27'p');
+end;
+
+procedure InverseOff;
+begin
+  Write(#27'q');
+end;
+{$endif}
+
+{$ifdef SYS_AGON}
+procedure InverseOn;
+begin
+  HighVideo;
+end;
+
+procedure InverseOff;
+begin
+  LowVideo;
+end;
+{$endif}
+
 const
   AsciiArt: array[1..15] of String[80] = (
     '             ___,@                                                    ',
@@ -64,22 +88,19 @@ end;
 procedure Show(Column: Integer; Move: Char);
 begin
   GotoXY(Column, 8);
-  if (Move = 'A') or (Move = 'X') then
-    Write(#27'pRock    '#27'q')
-  else
+  if (Move = 'A') or (Move = 'X') then InverseOn;
     Write('Rock    ');
+  if (Move = 'A') or (Move = 'X') then InverseOff;
 
   GotoXY(Column, 9);
-  if (Move = 'B') or (Move = 'Y') then
-    Write(#27'pPaper   '#27'q')
-  else
-    Write('Paper   ');
+  if (Move = 'B') or (Move = 'Y') then InverseOn;
+  Write('Paper   ');
+  if (Move = 'B') or (Move = 'Y') then InverseOff;
 
   GotoXY(Column, 10);
-  if (Move = 'C') or (Move = 'Z') then
-    WriteLn(#27'pScissors'#27'q')
-  else
-    WriteLn('Scissors');
+  if (Move = 'C') or (Move = 'Z') then InverseOn;
+  WriteLn('Scissors');
+  if (Move = 'C') or (Move = 'Z') then InverseOff;
 end;
 
 procedure Solve;
@@ -128,7 +149,7 @@ var
   I: Integer;
 
 begin
-  Write(#27'f');
+  CursorOff;
 
   ClrScr;
   GotoXY(21, 1);
@@ -141,6 +162,6 @@ begin
   Solve;
 
   GotoXY(1, 18);
-  Write(#27'e');
+  CursorOn;
 end.
 

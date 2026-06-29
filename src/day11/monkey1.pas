@@ -109,14 +109,16 @@ begin
   with Monkeys[I] do
   begin
     GotoXY(1 + 10 * I, 5);
-    Write(#27'p', I, ':', Monkeys[I].Activity:7:0, #27'q');
+    InverseOn;
+    Write(I, ':', Monkeys[I].Activity:7:0);
+    InverseOff;
   end;
 end;
 
 procedure Scroll;
 begin
   GotoXY(1, 7);
-  Write(#27'M');
+  DelLine;
   GotoXY(1, 24);
 end;
 
@@ -305,7 +307,7 @@ var
   I, J: Integer;
 
 begin
-  Write(#27'f');
+  CursorOff;
   ClrScr;
   WriteLn('*** AoC 2022.11 Monkey in the Middle ***');
   WriteLn;
@@ -341,5 +343,6 @@ begin
   Write('Part 2: ', GetBusiness:0:0);
 
   GotoXY(1, 6);
-  Write(#27'J'#27'e');
+  ClrEos;
+  CursorOn;
 end.

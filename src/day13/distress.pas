@@ -181,7 +181,12 @@ begin
 
     if CompareNode(N, M) <= 0 then
     begin
-      Write(' ',#27'p ',Index:3, ' '#27'q  '); 
+      Write(' '); 
+      InverseOn;
+      Write(' ',Index:3, ' ');
+      InverseOff;
+      Write('  '); 
+
       Count := Count + Index;
     end
     else

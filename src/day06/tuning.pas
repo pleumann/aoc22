@@ -31,9 +31,12 @@ var
   Letters: array['a'..'z'] of Integer;
   Unique, I: Integer;
   C: Char;
+  Window: String[32];
 begin
   GotoXY(9, 5);
   Write(Count: 4);
+
+  Window := '';
 
   for C := 'a' to 'z' do Letters[C] := 0;
   Unique := 0;
@@ -59,10 +62,10 @@ begin
     C := Data[I];
     Letters[C] := Letters[C] + 1;
 
+    if Length(Window) = Count then Delete(Window, 1, 1);
+    Window := Window + C;
     GotoXY(79 - Count, 6);
-    Write(#27'N');
-    GotoXY(78, 6);
-    Write(C);
+    Write(Window);
 
     GotoXY(3 * (Ord(C) - Ord('a')) + 2, 10);
     Write(Letters[C]:2);
@@ -96,7 +99,12 @@ begin
   WriteLn;
 
   for C := 'a' to 'z' do
-    Write(' '#27'p ', C, #27'q');
+  begin
+    Write(' ');
+    InverseOn;
+    Write(' ', C);
+    InverseOff;
+  end;
   WriteLn;
   for C := 'a' to 'z' do
     Write('  0');
@@ -114,7 +122,7 @@ begin
 end;
 
 begin
-  Write(#27'f');
+  CursorOff;
 
   ClrScr;
 
@@ -123,5 +131,5 @@ begin
 
   Solve;
 
-  Write(#27'e');
+  CursorOn;
 end.

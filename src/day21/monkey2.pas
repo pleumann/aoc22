@@ -144,7 +144,8 @@ begin
     if Part = 1 then
     begin
       GotoXY(1, 10);
-      Write(#27'L');
+      InsLine;
+      GotoXY(1, 10);
       BigStr(Big, S);
       Write(S:20);
       Write(' ', Node^.Operator, ' ');
@@ -184,7 +185,7 @@ var
   C: Integer;
 
 begin
-  Write(#27'f');
+  CursorOff;
 
   ClrScr;
 
@@ -205,7 +206,7 @@ begin
   WriteLn('Part 1: ', S);
 
   GotoXY(1, 10);
-  Write(#27'L');
+  InsLine;
 
   L := BigMin;
   H := BigMax;
@@ -223,7 +224,7 @@ begin
     BigAdd(I, J);
 
     GotoXY(1, 10);
-    Write(#27'L');
+    InsLine;
     BigStr(L, S);
     Write(S:20);
     Write(' : ');
@@ -256,6 +257,6 @@ begin
   GotoXY(1, 7);
   WriteLn('Part 2: ', S);
 
-  Write(#27'J');
-  Write(#27'e');
+  ClrEos;
+  CursorOn;
 end.

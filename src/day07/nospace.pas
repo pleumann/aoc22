@@ -1,5 +1,15 @@
 program NoSpace;
 
+{$ifdef SYS_CPM}
+const
+  LineUp = #27'A';
+{$endif}
+
+{$ifdef SYS_AGON}
+const
+  LineUp = #11;
+{$endif}
+
 procedure Solve;
 const
   Total = 70000000.0;
@@ -18,7 +28,11 @@ var
     P, Err: Integer;
     S: String;
   begin          
-    WriteLn(#27'APass ', Pass, ': '#27'p', Dir, '':(64-Length(Dir)), #27'q');
+    Write(LineUp, 'Pass ', Pass, ': ');
+    InverseOn;
+    Write(Dir, '':(64-Length(Dir)));
+    InverseOff;
+    WriteLn;
 
     Size := 0;
 
@@ -30,7 +44,12 @@ var
       else if Copy(S, 1, 4) = '$ cd' then
       begin
         Size := Size + Traverse(Dir + '/' + Copy(S, 6, 255), Pass);
-        WriteLn(#27'APass ', Pass, ': '#27'p', Dir, '':(64-Length(Dir)), #27'q');
+        Write(LineUp);
+        Write('Pass ', Pass, ': ');
+        InverseOn;
+        Write(Dir, '':(64-Length(Dir)));
+        InverseOff;
+        WriteLn;
       end
       else if Copy(S, 1, 4) = '$ ls' then
         begin (* Nothing *) end
@@ -99,7 +118,7 @@ begin
 end;
 
 begin
-  Write(#27'f');
+  CursorOff;
 
   ClrScr;
 
@@ -107,5 +126,5 @@ begin
 
   Solve;
 
-  Write(#27'e');
+  CursorOn;
 end.

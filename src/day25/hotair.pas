@@ -66,7 +66,13 @@ begin
   for I := 1 to Length(S) do
   begin
     C := S[I];
-    if C = '#' then Write(#27'p '#27'q') else Write(C);
+    if C = '#' then
+    begin
+      InverseOn;
+      Write(' ');
+      InverseOff;
+    end
+    else Write(C);
     for J := 0 to 1999 do begin end;
   end;
 end;
@@ -79,7 +85,11 @@ begin
   Spell(44,  6, '#   # #   # #         #     #    ');
   Spell(44,  7, '#   #  ###   ####     ##### #####');
 
+  {$ifdef SYS_AGON}
+  Spell(44,  9, '*** In Pascal. On 8-bit Agon. ***');
+  {$else}
   Spell(44,  9, '*** In Pascal. On 8-bit CP/M. ***');
+  {$endif}
 
   Spell(44, 11, 'Thanks for watching my videos!   ');
   Spell(44, 12, 'I hope they were able to convey a');
@@ -103,7 +113,7 @@ var
   I: Integer;
 
 begin
-  Write(#27'f');
+  CursorOff;
 
   ClrScr;
   WriteLn('*** AoC 2022.25 Full of Hot Air ***');
@@ -121,7 +131,7 @@ begin
     ReadLn(T, Num);
     Sum := Add(Sum, Num);
     GotoXY(1, 5);
-    Write(#27'L');
+    InsLine;
     GotoXY(16,5);
     Write(Num:20);
     GotoXY(16, 3);
@@ -131,7 +141,7 @@ begin
   end;
   Close(T);
 
-  Write(#27'e');
+  CursorOn;
 
   Thanks;
 

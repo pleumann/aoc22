@@ -113,7 +113,10 @@ begin
   begin
     if (K > 0) and (History[K - 1] = History[K]) then
     begin
-      Write(#27'p', Valves[History[K]].Name, #27'q ');
+      InverseOn;
+      Write(Valves[History[K]].Name);
+      InverseOff;
+      Write(' ');
       Dec(K);
     end
     else
@@ -122,7 +125,7 @@ begin
     Dec(K);
   end;
 
-  Write(#27'K');
+  ClrEol;
 
   GotoXY(73, Y);
   Write('--> ', Best:4);
@@ -181,7 +184,7 @@ procedure Spell(S: String);
 var
   I, J: Integer;
 begin
-  Write(#27'e');
+  CursorOn;
   
   for I := 1 to Length(S) do
   begin
@@ -189,11 +192,11 @@ begin
     for J := 0 to 4095 do begin end;
   end;
 
-  Write(#27'f');
+  CursorOff;
 end;
 
 begin
-  Write(#27'f');
+  CursorOff;
 
   ClrScr;
 
@@ -252,5 +255,5 @@ begin
 
   WriteLn;
 
-  Write(#27'e');
+  CursorOn;
 end.

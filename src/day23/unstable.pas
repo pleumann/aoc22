@@ -19,6 +19,7 @@ var
 
   Moved: Boolean;
 
+{$ifdef SYS_CPM}
 procedure ConOut(C: Char); register;
 inline (
   $4d /                 (* ld c,l           *)
@@ -27,6 +28,13 @@ inline (
   $19 /                 (* add hl,de        *)
   $e9                   (* jp (hl)          *)
 );
+{$else}
+procedure ConOut(C: Char); register;
+inline (
+  $7d /                 (* ld a,l           *)
+  $d7                   (* rst $10          *)
+);
+{$endif}
 
 function NextDir(D: Direction): Direction; register;
 inline(
@@ -332,7 +340,7 @@ begin
 end;
 
 begin
-  Write(#27'f');
+  CursorOff;
 
   ClrScr;
   WriteLn('*** AoC 2022.23 Unstable Diffusion ***');
@@ -343,5 +351,5 @@ begin
   Process;
 
   GotoXY(1, 23);
-  Write(#27'e');
+  CursorOn;
 end.

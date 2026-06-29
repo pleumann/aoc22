@@ -12,7 +12,7 @@ begin
     for I := 0 to 32767 do begin (* Wait *) end;
 
   GotoXY(1, 5);
-  Write(#27'J');
+  ClrEos;
   X := 0;
   Y := 0;
 end;
@@ -102,11 +102,11 @@ begin
 end;
 
 begin
-  Write(#27'f');
+  CursorOff;
 
   ClrScr;
   WriteLn('*** AoC 2022.01 Calorie Counting ***');
   Solve;
 
-  Write(#27'e');
+  CursorOn;
 end.

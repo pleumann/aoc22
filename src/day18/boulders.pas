@@ -132,7 +132,7 @@ var
   V1, V2: Integer;
     
 begin
-  Write(#27'f');
+  CursorOff;
 
   ClrScr;
   WriteLn('*** AoC 2022.18 Boiling Boulders ***');
@@ -156,5 +156,5 @@ begin
 
   GotoXY(1, 23);
 
-  Write(#27'e');
+  CursorOn;
 end.

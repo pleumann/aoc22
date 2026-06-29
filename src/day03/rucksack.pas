@@ -40,7 +40,11 @@ begin
   for D := 'a' to 'z' do
   begin
     if D in C then
-      Write(#27'p', D, #27'q')
+    begin
+      InverseOn;
+      Write(D);
+      InverseOff;
+    end
     else
       Write(D);
   end;
@@ -49,7 +53,11 @@ begin
   for D := 'A' to 'Z' do
   begin
     if D in C then
-      Write(#27'p', D, #27'q')
+    begin
+      InverseOn;
+      Write(D);
+      InverseOff;
+    end
     else
       Write(D);
   end;
@@ -67,10 +75,10 @@ begin
   S2 := Copy(S, L + 1, 255);
 
   GotoXY(33, 4);
-  Write(S1, #27'K');
+  Write(S1); ClrEol;
 
   GotoXY(33, 8);
-  Write(S2, #27'K');
+  Write(S2); ClrEol;
 
   C1 := StrToSet(S1);
   C2 := StrToSet(S2);
@@ -97,13 +105,13 @@ var
 begin
 
   GotoXY(33, 4);
-  Write(S1, #27'K');
+  Write(S1); ClrEol;
 
   GotoXY(33, 8);
-  Write(S2, #27'K');
+  Write(S2); ClrEol;
 
   GotoXY(33, 12);
-  Write(S3, #27'K');
+  Write(S3); ClrEol;
 
   C1 := StrToSet(S1);
   C2 := StrToSet(S2);
@@ -176,7 +184,7 @@ begin
 end;
 
 begin
-  Write(#27'f');
+  CursorOff;
 
   ClrScr;
 
@@ -204,5 +212,6 @@ begin
 
   Solve2;
 
-  WriteLn(#27'e');
+  WriteLn;
+  CursorOn;
 end.

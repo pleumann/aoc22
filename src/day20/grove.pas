@@ -177,7 +177,11 @@ begin
 
   for I := 1 to Rounds do
   begin
+    {$ifdef SYS_CPM}
     Write(#27'AMixing ');
+    {$else}
+    Write(#11'Mixing ');
+    {$endif}
     case I of
       1: Write(' 1st');
       2: Write(' 2nd');

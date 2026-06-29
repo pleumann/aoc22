@@ -192,11 +192,11 @@ begin
 
   for I := 0 to 2 do
   begin
-    if Active then Write(#27'p');
+    if Active then InverseOn;
     GotoXY(X, Y);
     for J := 0 to 4 do Write(S);
     Inc(Y);
-    if Active then Write(#27'q');
+    if Active then InverseOff;
   end;
 end;
 
@@ -213,7 +213,7 @@ begin
     5: begin X := 65; Y := 12; end;
   end;
 
-  if Active then Write(#27'p');
+  if Active then InverseOn;
   GotoXY(X, Y);
 
   case S of
@@ -242,7 +242,7 @@ begin
     end;
   end;
 
-  if Active then Write(#27'q');
+  if Active then InverseOff;
 end;
 
 procedure Load;
@@ -412,7 +412,7 @@ begin
 end;
 
 begin
-  Write(#27'f');
+  CursorOff;
 
   ClrScr;
 
@@ -465,5 +465,5 @@ begin
 
   WriteLn;
 
-  Write(#27'e');
+  CursorOn;
 end.

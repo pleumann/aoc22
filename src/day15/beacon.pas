@@ -147,7 +147,7 @@ begin
     Write('[', Ranges[I].Start:8:0, ',', Ranges[I].Stop - 1:8:0, ']');
   end;
 
-  Write(#27'J');
+  ClrEos;
 end;
 
 procedure SensorRangesForCoord(Y: Real; var Ranges: TRangeArray; var NumRanges: Integer);
@@ -158,7 +158,9 @@ var
   Count: Real;
 begin
   GotoXY(28,19);
-  Write(#27'pRanges for y=', Y:8:0, #27'q');
+  InverseOn;
+  Write('Ranges for y=', Y:8:0);
+  InverseOff;
 
   NumRanges := 0;
   for I := 0 to NumSensors - 1 do
@@ -213,7 +215,11 @@ procedure SetHighlight(I: Integer; B: Boolean);
 begin
   GotoXY(2 + 40 * (I div 12), 6 + I mod 12);
   if B then
-    Write(#27'p', I:2, #27'q')
+  begin
+    InverseOn;
+    Write(I:2);
+    InverseOff;
+  end
   else
     Write(I:2);
 end;
@@ -306,7 +312,7 @@ begin
 end;
 
 begin
-  Write(#27'f');
+  CursorOff;
 
   ClrScr;
   WriteLn('*** AoC 2022.15 Beacon Exclusion Zone ***');
@@ -315,7 +321,9 @@ begin
   WriteLn('Part 2: n/a');
 
   GotoXY(28,4);
-  Write(#27'p   List of sensors   ', #27'q');
+  InverseOn;
+  Write('   List of sensors   ');
+  InverseOff;
 
   Infinity :=  999999999.0;
   YY := 2000000.0;
@@ -329,5 +337,5 @@ begin
 
   GotoXY(1, 23);
 
-  Write(#27'e');
+  CursorOn;
 end.

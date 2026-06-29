@@ -88,6 +88,7 @@ begin
     end;
 end;
 
+{$ifdef SYS_CPM}
 procedure ConOut(C: Char); register;
 inline (
   $4d /                 (* ld c,l           *)
@@ -96,6 +97,13 @@ inline (
   $19 /                 (* add hl,de        *)
   $e9                   (* jp (hl)          *)
 );
+{$else}
+procedure ConOut(C: Char); register;
+inline (
+  $7d /                 (* ld a,l           *)
+  $d7                   (* rst $10          *)
+);
+{$endif}
 
 procedure Show(X, Y: Integer);
 var
@@ -139,9 +147,13 @@ begin
   Stop := False;
 
   GotoXY(13 + Go * 23, 3);
-  Write(#27'pX----- Trip ', (Go + 1), ' ', Labels[Odd(Go)], ' /'#27'q');
+  InverseOn;
+  Write('X----- Trip ', (Go + 1), ' ', Labels[Odd(Go)], ' /');
+  InverseOff;
   GotoXY(13 + Go * 23, 24);
-  Write(#27'p/ Trip ', (Go + 1), ' ',Labels[not Odd(Go)], ' -----X', #27'q');
+  InverseOn;
+  Write('/ Trip ', (Go + 1), ' ',Labels[not Odd(Go)], ' -----X');
+  InverseOff;
 
   repeat
     GotoXY(1, 10);
@@ -179,7 +191,7 @@ var
   I, J, K: Integer;
 
 begin
-  Write(#27'f');
+  CursorOff;
   ClrScr;
 
   WriteLn('*** AoC 2022.24 Blizzard Basin ***');
@@ -199,5 +211,5 @@ begin
   WriteLn('Part 2: ', K);
 
   GotoXY(1, 23);
-  Write(#27'e');
+  CursorOn;
 end.

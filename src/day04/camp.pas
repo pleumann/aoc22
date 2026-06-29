@@ -94,17 +94,17 @@ begin
   Close(T);
 
   GotoXY(1, 5);
-  Write(#27'J');
+  ClrEos;
 end;
 
 begin
-  Write(#27'f');
+  CursorOff;
 
   ClrScr;
   WriteLn('*** AoC 2022.04 Camp Cleanup ***');
   Solve;
 
-  Write(#27'e');
+  CursorOn;
 end.
 
 

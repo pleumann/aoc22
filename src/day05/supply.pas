@@ -15,12 +15,12 @@ begin
 
   if L > 0 then
   begin
-    Write(#27'p');
+    InverseOn;
     Write(Stacks[I][L]);
-    Write(#27'q');
+    InverseOff;
   end;
 
-  Write(#27'K');
+  ClrEol;
 end;
 
 procedure Push(I: Integer; C: Char);
@@ -117,7 +117,11 @@ begin
     Val(Copy(S, J + 4, 255), Dest, Err);
 
     GotoXY(1, 3);
-    WriteLn('CrateMover (tm) '#27'p' , Model, #27'q now moving ', Count:2, ' creates from ', Source, ' to ', Dest);
+    Write('CrateMover (tm) ');
+    InverseOn;
+    Write(Model);
+    InverseOff;
+    Write(' now moving ', Count:2, ' creates from ', Source, ' to ', Dest);
 
     if Model = 9000 then
       Move1(Count, Source, Dest)
@@ -140,7 +144,7 @@ var
 begin
   ClrScr;
 
-  Write(#27'f');
+  CursorOff;
   WriteLn('*** AoC 2022.05 Supply Stacks ***');
   WriteLn;
 
@@ -151,5 +155,5 @@ begin
   S := Solve(9001);
   GotoXY(1, 16);
   WriteLn('Part 2: ', S);
-  Write(#27'e');
+  CursorOn;
 end.

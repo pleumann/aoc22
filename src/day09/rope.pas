@@ -94,10 +94,14 @@ begin
     Col := 1;
 
   GotoXY(Col, 6);
-  Write(#27'p#', Count:4, ': ', Dir, Steps:2, #27'q');
+  InverseOn;
+  Write('#', Count:4, ': ', Dir, Steps:2);
+  InverseOff;
 
   GotoXY(Col, 17);
-  Write(#27'pH: ', X[0]:3, ',', Y[0]:3, #27'q');
+  InverseOn;
+  Write('H: ', X[0]:3, ',', Y[0]:3);
+  InverseOff;
 
   for I := 0 to 9 do
     S[I] := '..........';
@@ -112,7 +116,9 @@ begin
   end;
 
   GotoXY(Col + X[0] - MinX, 16 - (Y[0] - MinY));
-  Write(#27'pH'#27'q');
+  InverseOn;
+  Write('H');
+  InverseOff;
 
   Col := Col + 11;
 end;
@@ -172,7 +178,7 @@ begin
 end;
 
 begin
-  Write(#27'f');
+  CursorOff;
 
   ClrScr;
   WriteLn('*** AoC 2022.09 Rope Bridge ***');
@@ -183,5 +189,5 @@ begin
   Process;
 
   GotoXY(1, 18);
-  Write(#27'e');
+  CursorOn;
 end.
