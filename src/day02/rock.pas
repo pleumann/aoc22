@@ -1,29 +1,5 @@
 program Rock;
 
-{$ifdef SYS_CPM}
-procedure InverseOn;
-begin
-  Write(#27'p');
-end;
-
-procedure InverseOff;
-begin
-  Write(#27'q');
-end;
-{$endif}
-
-{$ifdef SYS_AGON}
-procedure InverseOn;
-begin
-  HighVideo;
-end;
-
-procedure InverseOff;
-begin
-  LowVideo;
-end;
-{$endif}
-
 const
   AsciiArt: array[1..15] of String[80] = (
     '             ___,@                                                    ',

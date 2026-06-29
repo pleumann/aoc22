@@ -403,7 +403,11 @@ begin
       LastSide := S;
     end;
 
+    {$ifdef SYS_AGON}
+    for I := 0 to 2047 do begin end;
+    {$else}
     for I := 0 to 767 do begin end;
+    {$endif}
 
     (* WriteLn('Side: ', S, ' X=', X, ' Y=', Y, ' Facing=', F); *)
   until Path[P] = 'X';

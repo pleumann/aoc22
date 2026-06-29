@@ -62,6 +62,8 @@ begin
       
       ReadLn(T, S);
     end;
+
+    Delay(10);
   until Eof(T);
 
   Close(T);

@@ -144,6 +144,7 @@ begin
   CursorOn;
 
   Thanks;
+  ClrEos;
 
   GotoXY(1, 23);
 end.

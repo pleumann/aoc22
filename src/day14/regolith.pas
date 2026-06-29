@@ -174,7 +174,9 @@ begin
   begin
     GotoXY(1 + X - Left, 3 + Y - Top);
     Write('o');
-    {$ifndef SYS_AGON}
+    {$ifdef SYS_AGON}
+    for K := 0 to 1023 do begin end;
+    {$else}
     for K := 0 to 255 do begin end;
     {$endif}
   end

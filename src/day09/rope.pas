@@ -121,6 +121,10 @@ begin
   InverseOff;
 
   Col := Col + 11;
+
+  {$ifdef SYS_AGON}
+  Delay(10);
+  {$endif}
 end;
 
 (*
