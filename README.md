@@ -18,14 +18,11 @@ per directory copy-pasted from the puzzle description.
 
 ## Pascal ##
 
-In addition to the Java source all days contain a solution in 
-[Pascal](https://en.wikipedia.org/wiki/Pascal_(programming_language)) for 8-bit
-[CP/M](https://en.wikipedia.org/wiki/CP/M), as I'm working on a simple Pascal compiler
-for [Z80](https://en.wikipedia.org/wiki/Zilog_Z80) in my spare time. There is a
-[YouTube Playlist](https://youtube.com/playlist?list=PLcjDDXgGeSQ6E3NLeSOH0Tn7UorYBgUOH)
-with videos of those solutions running on a [ZX Spectrum Next](https://www.specnext.com).
-If you want to run them yourself and don't have real CP/M machine available, my
-recommended CP/M emulator is [tnylpo](https://gitlab.com/gbrein/tnylpo).
+In addition to the Java source all days contain a solution in Pascal for [PASTA/80](https://github.com/pleumann/pasta80.git),
+an 8-bit Pascal compiler I am developing in my spare time. The solutions currently
+compile for CP/M and Agon. You can see them at work on YouTube:
+
+- [CP/M solutions running on a ZX Spectrum Next](https://youtube.com/playlist?list=PLcjDDXgGeSQ6E3NLeSOH0Tn7UorYBgUOH)
 
 Most Pascal solutions started out as straight ports of the Java ones after Advent of Code
 was already finished. Only some were done in December 2022 already and I did not
@@ -47,3 +44,15 @@ than the original Java ones that "got me the stars".
 That is, for me, probably the most interesting takeaway from doing this exercise on 8-bit:
 The limitations force you to create more efficient solutions, something that often gets
 lost in the age of GHz and GB machines.
+
+If you want to build and/or the solutions yourself (requires a PASTA/80 installation):
+```bash
+$ ./build.sh        # builds for CP/M, generates folder `cpm` with binaries and inputs.
+$ ./build.sh --agon # builds for Agon, generates folder `agon` with binaries and inputs.
+$ ./run.sh          # runs all days for CP/M in tnylpo on the host machine
+```
+
+If you have a physical or emulated CP/M or Agon machine, copy the respective folder to
+your SD card (or real diskette) and start the runner script (`aoc22.sub` or `aoc22.obey`).
+
+If you manage to adapt the solutions to other compilers or machines, let me know!
