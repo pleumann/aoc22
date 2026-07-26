@@ -121,7 +121,7 @@ begin
     InverseOn;
     Write(Model);
     InverseOff;
-    Write(' now moving ', Count:2, ' creates from ', Source, ' to ', Dest);
+    Write(' now moving ', Count:2, ' crates from ', Source, ' to ', Dest);
 
     if Model = 9000 then
       Move1(Count, Source, Dest)
