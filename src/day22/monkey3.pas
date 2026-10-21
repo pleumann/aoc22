@@ -1,5 +1,10 @@
 program Monkey;
 
+{$i ../logging.inc}
+
+var
+  Part1, Part2: String[20];
+
 type
   Facing = (East, South, West, North);
 
@@ -51,7 +56,7 @@ var
 
   Path: array[0..5652] of Char;
 
-  Part1, Part2: Real;
+  Score1, Score2: Real;
 
 function Right(F: Facing): Facing;
 begin
@@ -451,8 +456,9 @@ begin
   GotoXY(30, 18); Write('|55555|');
   GotoXY(30, 19); Write('+-----+');
 
-  Part1 := Process(1, Adjacent1, Transform1);
-  GotoXY(1, 17); WriteLn('Part 1: ', Part1:6:0);
+  Score1 := Process(1, Adjacent1, Transform1);
+  Str(Score1:0:0, Part1);
+  GotoXY(1, 17); WriteLn('Part 1: ', Part1:6);
 
   GotoXY(51,  7); Write('    +-----+      +-----+');
   GotoXY(51,  8); Write('   /00000/|     /33333/|');
@@ -464,10 +470,13 @@ begin
   GotoXY(51, 14); Write('|22222|/     |55555|/   ');
   GotoXY(51, 15); Write('+-----+      +-----+    ');
 
-  Part2 := Process(2, Adjacent2, Transform2);
-  GotoXY(1, 18); WriteLn('Part 2: ', Part2:6:0);
+  Score2 := Process(2, Adjacent2, Transform2);
+  Str(Score2:0:0, Part2);
+  GotoXY(1, 18); WriteLn('Part 2: ', Part2:6);
 
   WriteLn;
 
   CursorOn;
+
+  Log(22, Part1, Part2);
 end.

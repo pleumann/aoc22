@@ -1,5 +1,10 @@
 program Cathode;
 
+{$i ../logging.inc}
+
+var
+  Part1, Part2: String[20];
+
 const
   Cycle:     Integer = 0;     (* Current cycle              *)
   X:         Integer = 1;     (* Register value             *)
@@ -70,6 +75,12 @@ begin
 
   WriteLn;
   WriteLn;
-  WriteLn('Signal strengths: ', Signal);
+
+  Str(Signal, Part1);
+  Part2 := 'n/a';
+
+  WriteLn('Signal strengths: ', Part1);
   WriteLn;
+
+  Log(10, Part1, Part2);
 end.

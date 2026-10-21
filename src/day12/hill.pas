@@ -1,6 +1,10 @@
 program Hill;
 
+{$i ../logging.inc}
+
 var
+  Part1, Part2: String[20];
+
   Map: array [0..47] of array [0..63] of Char;
 
   Cost: array [0..47] of array [0..63] of Integer;
@@ -145,8 +149,10 @@ begin
 
   while Think do begin end;
 
+  Str(Cost[OriginX][OriginY], Part1);
+
   GotoXY(20, 3);
-  WriteLn('Part 1: Trail starting at ', OriginX:2, ',', OriginY:2, ' costs ', Cost[OriginX][OriginY], '.');
+  WriteLn('Part 1: Trail starting at ', OriginX:2, ',', OriginY:2, ' costs ', Part1, '.');
 
   Best := 32767;
   BestX := -1;
@@ -165,9 +171,13 @@ begin
     end;
   end;
 
-  GotoXY(20, 4); WriteLn('Part 2: Trail starting at ', BestX:2, ',', BestY:2, ' costs ', Best, '.');
+  Str(Best, Part2);
+
+  GotoXY(20, 4); WriteLn('Part 2: Trail starting at ', BestX:2, ',', BestY:2, ' costs ', Part2, '.');
 
   ClrEos;
   CursorOn;
+
+  Log(12, Part1, Part2);
 end.
     

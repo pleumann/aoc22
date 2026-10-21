@@ -1,5 +1,10 @@
 program Rock;
 
+{$i ../logging.inc}
+
+var
+  Part1, Part2: String[20];
+
 const
   AsciiArt: array[1..15] of String[80] = (
     '             ___,@                                                    ',
@@ -84,12 +89,12 @@ var
   T: Text;
   S: String;
   Them, Us: Char;
-  Part1, Part2, Round: Integer;
+  Score1, Score2, Round: Integer;
 begin
   Round := 0;
 
-  Part1 := 0;
-  Part2 := 0;
+  Score1 := 0;
+  Score2 := 0;
 
   Assign(T, ParamStr(1));
   Reset(T);
@@ -109,8 +114,11 @@ begin
     Us := S[3];
     Show(44, Us);
 
-    Part1 := Part1 + Play1(Them, Us);
-    Part2 := Part2 + Play2(Them, Us);
+    Score1 := Score1 + Play1(Them, Us);
+    Score2 := Score2 + Play2(Them, Us);
+
+    Str(Score1, Part1);
+    Str(Score2, Part2);
 
     GotoXY(34, 15);
     Write('Part 1: ', Part1:6);
@@ -139,5 +147,7 @@ begin
 
   GotoXY(1, 18);
   CursorOn;
+
+  Log(2, Part1, Part2);
 end.
 

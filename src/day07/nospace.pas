@@ -1,5 +1,10 @@
 program NoSpace;
 
+{$i ../logging.inc}
+
+var
+  Part1, Part2: String[20];
+
 {$ifdef SYS_CPM}
 const
   LineUp = #27'A';
@@ -113,8 +118,12 @@ begin
   WriteLn;
   WriteLn('Deleting directory ', BestName, ' will free ', BestSize:0:0, ' bytes.');
   WriteLn;
-  WriteLn('Part 1: ', SmallSum:8:0);
-  WriteLn('Part 2: ', BestSize:8:0);
+
+  Str(SmallSum:0:0, Part1);
+  Str(BestSize:0:0, Part2);
+
+  WriteLn('Part 1: ', Part1:8);
+  WriteLn('Part 2: ', Part2:8);
 end;
 
 begin
@@ -127,4 +136,6 @@ begin
   Solve;
 
   CursorOn;
+
+  Log(7, Part1, Part2);
 end.

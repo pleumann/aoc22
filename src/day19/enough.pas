@@ -1,5 +1,7 @@
 program Enough;
 
+{$i ../logging.inc}
+
 {$a-}
 
 const
@@ -14,7 +16,8 @@ var
   Stock, Robots, Limit: TResourceArray;
   Cost: array[Resource] of TResourceArray;
   Best: array[0..32] of Byte;
-  WatchDog, Num, Part1, Part2, I: Integer;
+  WatchDog, Num, Score1, Score2, I: Integer;
+  Part1, Part2: String[20];
   T: Text;
 
 procedure Update(B: Boolean);
@@ -317,8 +320,8 @@ begin
 
   Num := 1;
 
-  Part1 := 0;
-  Part2 := 1;
+  Score1 := 0;
+  Score2 := 1;
 
   Assign(T, ParamStr(1));
   Reset(T);
@@ -331,11 +334,11 @@ begin
     if Num < 4 then
     begin
       Simulate(32);
-      Part2 := Part2 * Best[0];
-      Part1 := Part1 + Num * Best[8];
+      Score2 := Score2 * Best[0];
+      Score1 := Score1 + Num * Best[8];
     end else begin
       Simulate(24);
-      Part1 := Part1 + Num * Best[0];
+      Score1 := Score1 + Num * Best[0];
     end;
 
     Update(False);
@@ -347,6 +350,12 @@ begin
 
   WriteLn;
   WriteLn;
+
+  Str(Score1, Part1);
+  Str(Score2, Part2);
+
   WriteLn('Part 1: ', Part1);
   WriteLn('Part 2: ', Part2);
+
+  Log(19, Part1, Part2);
 end.

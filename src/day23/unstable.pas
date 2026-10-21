@@ -1,5 +1,10 @@
 program Unstable;
 
+{$i ../logging.inc}
+
+var
+  Part1, Part2: String[20];
+
 type
   Direction = (North, South, West, East, Happy);
 
@@ -251,8 +256,10 @@ begin
     if Y > MaxY then MaxY := Y;
   end;
 
+  Str((MaxX - MinX + 1) * (MaxY - MinY + 1) - NumElves, Part1);
+
   GotoXY(65, 15);
-  WriteLn('Part 1: ', (MaxX - MinX + 1) * (MaxY - MinY + 1) - NumElves:4);
+  WriteLn('Part 1: ', Part1:4);
 end;
 
 procedure Process;
@@ -290,10 +297,12 @@ begin
     for I := 0 to NumElves - 1 do Consider(Elves[I]);
     for I := 0 to NumElves - 1 do Travel(Elves[I]);
 
-    if not Moved then 
-    begin 
+    if not Moved then
+    begin
+      Str(Rounds, Part2);
+
       GotoXY(65, 20);
-      WriteLn('Part 2: ', Rounds:4);
+      WriteLn('Part 2: ', Part2:4);
       Break;
     end;
 
@@ -352,4 +361,6 @@ begin
 
   GotoXY(1, 23);
   CursorOn;
+
+  Log(23, Part1, Part2);
 end.

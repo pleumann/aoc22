@@ -1,5 +1,10 @@
 program Grove;
 
+{$i ../logging.inc}
+
+var
+  Part1, Part2, SA: String[20];
+
 type
   PNode = ^TNode;
   TNode = record
@@ -228,6 +233,14 @@ begin
   B := B + Int(A / 1000000.0);
   A := SafeMod(A, 1000000.0);
 
-  WriteLn('Part 1: ', Sum1);
-  WriteLn('Part 2: ', B:0:0, A:6:0);
+  Str(Sum1, Part1);
+
+  Str(B:0:0, Part2);
+  Str(A:6:0, SA);
+  Part2 := Part2 + SA;
+
+  WriteLn('Part 1: ', Part1);
+  WriteLn('Part 2: ', Part2);
+
+  Log(20, Part1, Part2);
 end.

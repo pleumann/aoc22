@@ -1,5 +1,10 @@
 program Rucksack;
 
+{$i ../logging.inc}
+
+var
+  Part1, Part2: String[20];
+
 type
   TCharSet = set of Char;
 
@@ -154,6 +159,8 @@ begin
     Write(I:4);
   end;
 
+  Str(I, Part1);
+
   Close(T);
 end;
 
@@ -179,6 +186,8 @@ begin
     GotoXY(23, 22);
     Write(I:4);
   end;
+
+  Str(I, Part2);
 
   Close(T);
 end;
@@ -214,4 +223,6 @@ begin
 
   WriteLn;
   CursorOn;
+
+  Log(3, Part1, Part2);
 end.

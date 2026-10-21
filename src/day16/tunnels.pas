@@ -1,6 +1,11 @@
 program Tunnels;
 
+{$i ../logging.inc}
+
 {$a-}
+
+var
+  Part1, Part2: String[20];
 
 type
   TValve = record
@@ -243,9 +248,12 @@ begin
   GotoXY(1, 19);
   Spell('That''s a lesson we all need to know. :-)');
 
+  Str(Best1, Part1);
+  Str(Best2 + Best, Part2);
+
   GotoXY(1, 21);
-  WriteLn('Part 1: ', Best1:4);
-  WriteLn('Part 2: ', Best2 + Best:4, ' = ', Best2:4, ' + ', Best:4);
+  WriteLn('Part 1: ', Part1:4);
+  WriteLn('Part 2: ', Part2:4, ' = ', Best2:4, ' + ', Best:4);
 
   for I := 0 to 3 do
     for J := -32768 to 32767 do begin end;
@@ -256,4 +264,6 @@ begin
   WriteLn;
 
   CursorOn;
+
+  Log(16, Part1, Part2);
 end.

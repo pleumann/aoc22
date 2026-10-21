@@ -2,7 +2,12 @@ program Monkey;
 
 {$i bigint.pas}
 
+{$i ../logging.inc}
+
 {$a-}
+
+var
+  Part1, Part2: String[20];
 
 type
   NameStr = String[4];
@@ -201,9 +206,10 @@ begin
 
   Eval(1, Lookup('root'), I);
   BigStr(I, S);
+  Part1 := S;
 
   GotoXY(1, 6);
-  WriteLn('Part 1: ', S);
+  WriteLn('Part 1: ', Part1);
 
   GotoXY(1, 10);
   InsLine;
@@ -254,9 +260,12 @@ begin
   end;
 
   BigStr(I, S);
+  Part2 := S;
   GotoXY(1, 7);
-  WriteLn('Part 2: ', S);
+  WriteLn('Part 2: ', Part2);
 
   ClrEos;
   CursorOn;
+
+  Log(21, Part1, Part2);
 end.

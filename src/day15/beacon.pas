@@ -1,5 +1,10 @@
 program Beacon;
 
+{$i ../logging.inc}
+
+var
+  Result1, Result2: String[20];
+
 type
   TRange = record
     Start, Stop: Real;
@@ -208,7 +213,9 @@ begin
   for I := 0 to NumRanges - 1 do
     Count := Count + Ranges[I].Stop - Ranges[I].Start;
 
-  GotoXY(9, 3); Write(Count:0:0);
+  Str(Count:0:0, Result1);
+
+  GotoXY(9, 3); Write(Result1);
 end;
 
 procedure SetHighlight(I: Integer; B: Boolean);
@@ -230,6 +237,7 @@ var
   R: TRange;
   Ranges, Pieces, Possible: TRangeArray;
   Count, Z, P, Q: Real;
+  SQ: String[20];
 begin
     if (Y < 0) or (Y > 2.0 * YY + 1) then
     begin
@@ -268,8 +276,13 @@ begin
     begin
       GotoXY(9, 4);
 
-      P := 4.0 * Possible[0].Start + Int(Y / 1000000.0);
-      Q := Y mod 1000000.0;
+      Z := Int(Y / 1000000.0);
+      P := 4.0 * Possible[0].Start + Z;
+      Q := Y - Z * 1000000.0;
+
+      Str(P:0:0, Result2);
+      Str(Q:6:0, SQ);
+      Result2 := Result2 + SQ;
 
       Write(P:0:0, Q:6:0);
 
@@ -338,4 +351,6 @@ begin
   GotoXY(1, 23);
 
   CursorOn;
+
+  Log(15, Result1, Result2);
 end.

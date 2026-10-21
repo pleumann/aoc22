@@ -1,5 +1,10 @@
 program Monkey2;
 
+{$i ../logging.inc}
+
+var
+  Result1, Result2: String[20];
+
 type
   TMonkey = record
     Operation:  Char;
@@ -322,8 +327,10 @@ begin
   for I := 0 to NumItems - 1 do
     Part1(Items[I]);
 
+  Str(GetBusiness:0:0, Result1);
+
   GotoXY(1, 3);
-  Write('Part 1: ', GetBusiness:0:0);
+  Write('Part 1: ', Result1);
 
   Load;
   Dump;
@@ -339,10 +346,14 @@ begin
   for I := 0 to NumItems - 1 do
     Part2(Items[I]);
 
+  Str(GetBusiness:0:0, Result2);
+
   GotoXY(21, 3);
-  Write('Part 2: ', GetBusiness:0:0);
+  Write('Part 2: ', Result2);
 
   GotoXY(1, 6);
   ClrEos;
   CursorOn;
+
+  Log(11, Result1, Result2);
 end.

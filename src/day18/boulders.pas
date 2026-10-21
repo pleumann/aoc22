@@ -1,5 +1,10 @@
 program Boulders;
 
+{$i ../logging.inc}
+
+var
+  Part1, Part2: String[20];
+
 const
   Air   = 0;
   Stone = 1;
@@ -148,13 +153,18 @@ begin
   Show(52);
   V2 := Visible;
 
+  Str(V1, Part1);
+  Str(V1 - V2, Part2);
+
   GotoXY(34, 24);
-  Write('Part 1: ', V1);
+  Write('Part 1: ', Part1);
 
   GotoXY(60, 24);
-  Write('Part 2: ', V1 - V2);
+  Write('Part 2: ', Part2);
 
   GotoXY(1, 23);
 
   CursorOn;
+
+  Log(18, Part1, Part2);
 end.

@@ -1,5 +1,10 @@
 program Blizzard;
 
+{$i ../logging.inc}
+
+var
+  Part1, Part2: String[20];
+
 type
   Point = record
     X, Y: Byte;
@@ -200,16 +205,20 @@ begin
   Load;
 
   I := Simulate(TopLeft, BottomRight, 0, 0);
+  Str(I, Part1);
 
   GotoXY(1, 16);
-  WriteLn('Part 1: ', I);
+  WriteLn('Part 1: ', Part1);
 
   J := Simulate(BottomRight, TopLeft, 1, I + 1);
   K := Simulate(TopLeft, BottomRight, 2, J + 1);
+  Str(K, Part2);
 
   GotoXY(1, 17);
-  WriteLn('Part 2: ', K);
+  WriteLn('Part 2: ', Part2);
 
   GotoXY(1, 23);
   CursorOn;
+
+  Log(24, Part1, Part2);
 end.

@@ -1,12 +1,16 @@
 program Regolith;
 
+{$i ../logging.inc}
+
 type
   TStringArray = array[0..31] of String[10];
 
 var
+  Part1, Part2: String[20];
+
   Sand, Rock: array[0..400] of set of Byte;
 
-  Floor, Top, Left, Part1, Part2: Integer;
+  Floor, Top, Left, Count1, Count2: Integer;
 
   Horz: array[0..200] of Integer;
 
@@ -180,7 +184,7 @@ begin
     for K := 0 to 255 do begin end;
     {$endif}
   end
-  else if GetRock(Horz[Y], Y + 1) and ((Part2 = 0) or (Y < Floor - 1)) then
+  else if GetRock(Horz[Y], Y + 1) and ((Count2 = 0) or (Y < Floor - 1)) then
   begin
     {$ifdef SYS_AGON}
     Delay(1000);
@@ -223,8 +227,8 @@ procedure Solve;
 var
   X, Y, Z, NextX, NextY: Integer;
 begin
-  Part1 := 0;
-  Part2 := 0;
+  Count1 := 0;
+  Count2 := 0;
 
   Left := 999;
   Top := 999;
@@ -235,7 +239,7 @@ begin
   repeat
     Y := Y - 1;
     X := Horz[Y];
-    Part1 := Part1 + 1;
+    Count1 := Count1 + 1;
     Y := Fall(X, Y);
     Show(Horz[Y], Y);
   until Y = Floor - 1;
@@ -243,15 +247,18 @@ begin
   repeat
     Y := Y - 1;
     X := Horz[Y];
-    Part2 := Part2 + 1;
+    Count2 := Count2 + 1;
     Y := Fall(X, Y);
     Show(Horz[Y], Y);
   until Y = 0;
 
+  Str(Count1 - 1, Part1);
+  Str(Count1 + Count2, Part2);
+
   GotoXY(1, 3);
-  WriteLn('Part 1: ', Part1 - 1:5);
+  WriteLn('Part 1: ', Part1:5);
   GotoXY(1, 4);
-  WriteLn('Part 2: ', Part1 + Part2:5);
+  WriteLn('Part 2: ', Part2:5);
 
   GotoXY(1, 23);
 end;
@@ -270,4 +277,6 @@ begin
   Solve;
 
   CursorOn;
+
+  Log(14, Part1, Part2);
 end.

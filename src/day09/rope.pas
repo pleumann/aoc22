@@ -1,12 +1,15 @@
 program Rope;
 
+{$i ../logging.inc}
+
 type
   TArrayOfSets = array[0..383] of set of Byte; (* Table for visited locations *)
- 
+
 var
   X, Y: array[0..9] of Integer;                (* Coordinates of all 10 knots *)
   Seen1, Seen2: TArrayOfSets;                  (* Visited locations parts 1/2 *)
-  Part1, Part2: Integer;                       (* Number of visited locations *)
+  Count1, Count2: Integer;                     (* Number of visited locations *)
+  Part1, Part2: String[20];
 
 (*
  * Adds coordinates to given "seen" set, incrementing the counter if necessary.
@@ -151,8 +154,8 @@ begin
     Seen2[I] := [];
   end;
 
-  Part1 := 0;
-  Part2 := 0;
+  Count1 := 0;
+  Count2 := 0;
 
   Print(0, ' ', 0);
 
@@ -169,16 +172,19 @@ begin
     for I := 1 to Steps do
     begin
       Move(C);
-      AddSeen(1, Seen1, Part1, X[1], Y[1]);
-      AddSeen(2, Seen2, Part2, X[9], Y[9]);
+      AddSeen(1, Seen1, Count1, X[1], Y[1]);
+      AddSeen(2, Seen2, Count2, X[9], Y[9]);
     end;
 
     Print(Count, C, Steps);
 
     Count := Count + 1;
   end;
-        
+
   Close(T);
+
+  Str(Count1, Part1);
+  Str(Count2, Part2);
 end;
 
 begin
@@ -194,4 +200,6 @@ begin
 
   GotoXY(1, 18);
   CursorOn;
+
+  Log(9, Part1, Part2);
 end.

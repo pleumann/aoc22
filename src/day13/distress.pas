@@ -1,6 +1,11 @@
 program Distress;
 
+{$i ../logging.inc}
+
 {$a-}
+
+var
+  Part1, Part2: String[20];
 
 type
   PNode = ^TNode;
@@ -192,7 +197,9 @@ begin
     else
       Write('  ',Index:3, '   ');
 
+    {$ifdef SYS_CPM}
     if Index mod 10 = 0 then WriteLn;
+    {$endif}
 
     if CompareNode(N, Divider1) < 0 then
     begin
@@ -218,9 +225,12 @@ begin
 
   Close(T);
 
+  Str(Count, Part1);
+  Str(Before1 * Before2, Part2);
+
   WriteLn;
-  WriteLn('Part 1: Sum of right-order packet indices is ', Count:5, '.');
-  WriteLn('Part 2: Product of divider packet indices is ', Before1 * Before2:5, '.');
+  WriteLn('Part 1: Sum of right-order packet indices is ', Part1:5, '.');
+  WriteLn('Part 2: Product of divider packet indices is ', Part2:5, '.');
 end;
 
 begin
@@ -230,4 +240,6 @@ begin
   WriteLn;
 
   Process;
+
+  Log(13, Part1, Part2);
 end.

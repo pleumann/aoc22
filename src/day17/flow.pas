@@ -1,5 +1,10 @@
 program Flow;
 
+{$i ../logging.inc}
+
+var
+  Part1, Part2: String[20];
+
 type
   TPiece = array[0..3] of Integer;
 
@@ -192,7 +197,7 @@ var
   HaveCycle, Ok: Boolean;
   Item: TCache;
   Target, Count2, Cycle, Factor, A, B: Real;
-  S: String;
+  S, SA: String;
 begin
   Map[0] := $ff;
   for I := 1 to MapSize - 1 do
@@ -258,10 +263,12 @@ begin
         GotoXY(9, 4);
         Write(Height);
 
-        if Count = 2022 then 
+        if Count = 2022 then
         begin
+          Str(Height, Part1);
+
           GotoXY(1, 21);
-          Write('Part 1: ', Height);
+          Write('Part 1: ', Part1);
         end;
 
         if Height >= 3 then
@@ -319,8 +326,12 @@ begin
             B := B + Int(A / 1000000.0);
             A := SafeMod(A, 1000000.0);
 
+            Str(B:0:0, Part2);
+            Str(A:0:0, SA);
+            Part2 := Part2 + SA;
+
             GotoXY(1, 22);
-            Write('Part 2: ', B:0:0, A:0:0);
+            Write('Part 2: ', Part2);
             Exit;
           end;
         end;
@@ -366,4 +377,6 @@ begin
   GotoXY(1, 23);
 
   CursorOn;
+
+  Log(17, Part1, Part2);
 end.

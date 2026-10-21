@@ -1,6 +1,9 @@
 program Tuning;
 
+{$i ../logging.inc}
+
 var
+  Part1, Part2: String[20];
   Data: array[0..4095] of Char;
   Size: Integer;
 
@@ -111,14 +114,16 @@ begin
   WriteLn;
 
   I := Find(0, 4);
+  Str(I, Part1);
 
   GotoXY(1, 12);
-  WriteLn('Part 1: ', I);
+  WriteLn('Part 1: ', Part1);
 
   I := Find(I, 14);
+  Str(I, Part2);
 
   GotoXY(1, 13);
-  WriteLn('Part 2: ', I);
+  WriteLn('Part 2: ', Part2);
 end;
 
 begin
@@ -132,4 +137,6 @@ begin
   Solve;
 
   CursorOn;
+
+  Log(6, Part1, Part2);
 end.

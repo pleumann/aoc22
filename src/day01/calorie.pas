@@ -1,8 +1,11 @@
 program Calorie;
 
+{$i ../logging.inc}
+
 var
   Scores: array[0..2] of Real;
   X, Y: Integer;
+  Part1, Part2: String[20];
 
 procedure Erase(Wait: Boolean);
 var
@@ -57,8 +60,10 @@ begin
   end;
 
   GotoXY(1, 3);
-  WriteLn('Part 1: ', Scores[0]:7:0);
-  WriteLn('Part 2: ', Scores[0] + Scores[1] + Scores[2]:7:0);
+  Str(Scores[0]:0:0, Part1);
+  Str(Scores[0] + Scores[1] + Scores[2]:0:0, Part2);
+  WriteLn('Part 1: ', Part1:7);
+  WriteLn('Part 2: ', Part2:7);
 end;
 
 procedure Solve;
@@ -109,4 +114,6 @@ begin
   Solve;
 
   CursorOn;
+
+  Log(1, Part1, Part2);
 end.

@@ -1,6 +1,9 @@
 program Supply;
 
+{$i ../logging.inc}
+
 var
+  Part1, Part2: String[20];
   Stacks: array[0..9] of String;
 
 procedure Dump(I: Integer);
@@ -138,9 +141,6 @@ begin
   Solve := S;
 end;
 
-var
-  S: String;
-
 begin
   ClrScr;
 
@@ -148,12 +148,14 @@ begin
   WriteLn('*** AoC 2022.05 Supply Stacks ***');
   WriteLn;
 
-  S := Solve(9000);
+  Part1 := Solve(9000);
   GotoXY(1, 15);
-  WriteLn('Part 1: ', S);
+  WriteLn('Part 1: ', Part1);
 
-  S := Solve(9001);
+  Part2 := Solve(9001);
   GotoXY(1, 16);
-  WriteLn('Part 2: ', S);
+  WriteLn('Part 2: ', Part2);
   CursorOn;
+
+  Log(5, Part1, Part2);
 end.

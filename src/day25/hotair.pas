@@ -1,5 +1,10 @@
 program HotAir;
 
+{$i ../logging.inc}
+
+var
+  Part1, Part2: String[20];
+
 function Decimal(C: Char): Integer;
 begin
   case C of
@@ -147,4 +152,9 @@ begin
   ClrEos;
 
   GotoXY(1, 23);
+
+  Part1 := Sum;
+  Part2 := 'n/a';
+
+  Log(25, Part1, Part2);
 end.

@@ -1,5 +1,10 @@
 program Camp;
 
+{$i ../logging.inc}
+
+var
+  Part1, Part2: String[20];
+
 procedure Split(S: String; C: Char; var T, U: String);
 var
   P: Integer;
@@ -48,10 +53,10 @@ var
   T: Text;
   S: String;
   L: array[0..3] of String;
-  A, B, C, D, Err, Row, Part1, Part2: Integer;
+  A, B, C, D, Err, Row, P1, P2: Integer;
 begin
-  Part1 := 0;
-  Part2 := 0;
+  P1 := 0;
+  P2 := 0;
 
   Row := 6;
 
@@ -77,11 +82,14 @@ begin
 
     if (A >= C) and (B <= D) or (C >= A) and (D <= B) then
     begin
-      Part1 := Part1 + 1;
-      Part2 := Part2 + 1;
+      P1 := P1 + 1;
+      P2 := P2 + 1;
     end
     else if (A >= C) and (A <= D) or (B >= C) and (B <= D) then
-      Part2 := Part2 + 1;
+      P2 := P2 + 1;
+
+    Str(P1, Part1);
+    Str(P2, Part2);
 
     GotoXY(1, 3);
     WriteLn('Part 1: ', Part1:5);
@@ -105,6 +113,8 @@ begin
   Solve;
 
   CursorOn;
+
+  Log(4, Part1, Part2);
 end.
 
 

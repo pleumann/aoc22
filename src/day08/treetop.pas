@@ -1,6 +1,9 @@
 program TreeTop;
 
+{$i ../logging.inc}
+
 var
+  Part1, Part2: String[20];
   Map: array[0..99] of array[0..99] of Char;
   Size: Integer;
 
@@ -114,8 +117,12 @@ begin
   end;
 
   WriteLn;
-  WriteLn('Part 1: ', Trees, ' trees are visible.');
-  WriteLn('Part 2: Scenic score is ', Best:0:0, '.');
+
+  Str(Trees, Part1);
+  Str(Best:0:0, Part2);
+
+  WriteLn('Part 1: ', Part1, ' trees are visible.');
+  WriteLn('Part 2: Scenic score is ', Part2, '.');
 end;
 
 begin
@@ -126,4 +133,6 @@ begin
 
   Load;
   Process;
+
+  Log(8, Part1, Part2);
 end.
